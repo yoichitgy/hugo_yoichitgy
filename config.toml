@@ -1,4 +1,11 @@
 baseurl = "http://yoichitgy.github.io/"
 languageCode = "en-us"
-title = "My New Hugo Site"
-theme = "hugo-uno"
+title = "Swift Injection"
+theme = "angels-ladder"
+disqusShortname = "yoichitgy"
+
+[Params]
+subtitle = "Swift patterns and practices"
+github = "https://github.com/yoichitgy"
+copyright = "© 2015 Yoichi Tagaya. All rights reserved."
+analytics = "UA-66106661-1"
