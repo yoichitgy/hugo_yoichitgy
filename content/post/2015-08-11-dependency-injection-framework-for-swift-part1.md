@@ -7,7 +7,7 @@ title = "Dependency Injection Framework for Swift - Introduction to Swinject"
 
 +++
 
-This blog post introduces [Swinject](https://github.com/Swinject/Swinject), a dependency injection framework for Swift. Swift 2 will come with [protocol extension](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Protocols.html#//apple_ref/doc/uid/TP40014097-CH25-ID521) and encourage [protocol oriented programming](https://developer.apple.com/videos/wwdc/2015/?id=408). In addition, Xcode 7 will introduce [UI testing](https://developer.apple.com/videos/wwdc/2015/?id=406). In this context, it is getting more important to decouple components of an app by protocols. The pattern of the decoupling is called [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection).
+This blog post introduces [Swinject](https://github.com/Swinject/Swinject), a dependency injection framework for Swift. Swift 2 will come with [protocol extension](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Protocols.html#//apple_ref/doc/uid/TP40014097-CH25-ID521) and encourage [protocol oriented programming](https://developer.apple.com/videos/wwdc/2015/?id=408). In addition, Xcode 7 will introduce [UI testing](https://developer.apple.com/videos/wwdc/2015/?id=406). In this context, it is getting more important to decouple components of an app by protocols. The typical pattern of the decoupling is called [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection).
 
 ## Dependency Injection
 
