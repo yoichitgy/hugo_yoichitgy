@@ -6,7 +6,7 @@ title = "Dependency Injection Framework for Swift - Simple Weather App Example w
 
 +++
 
-In [the last blog post](http://yoichitgy.github.io/post/dependency-injection-framework-for-swift-introduction-to-swinject/), we walked through the concept of dependency injection and basic usage of [Swinject](https://github.com/Swinject/Swinject), the dependency injection framework for Swift. In this blog post, we are going to develop the simple weather app that you saw its screenshot in the last blog post. During the simple but essential steps of the development, you will see how to get rid of tightly coupled dependencies by using the dependency injection pattern and Swinject.
+In [the last blog post](/post/dependency-injection-framework-for-swift-introduction-to-swinject/), we walked through the concept of dependency injection and basic usage of [Swinject](https://github.com/Swinject/Swinject), the dependency injection framework for Swift. In this blog post, we are going to develop the simple weather app that you saw its screenshot in the last blog post. During the simple but essential steps of the development, you will see how to get rid of tightly coupled dependencies by using the dependency injection pattern and Swinject.
 
 The source code used in this blog post is available at [a repository on GitHub](https://github.com/Swinject/SwinjectSimpleExample).
 

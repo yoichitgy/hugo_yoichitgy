@@ -167,7 +167,7 @@ It is so simple to configure a `Container` and to retrieve a resolved instance w
 
 ## Conclusion
 
-The concept of dependency injection has been introduced with the scenario to write unit tests for the weather app, and its basic use case has been demonstrated. With Swinject, it is easy to configure the dependencies and to get instances with the dependencies resolved. In the next blog post, we will see how to use Swinject with unit tests in the example weather app.
+The concept of dependency injection has been introduced with the scenario to write unit tests for the weather app, and its basic use case has been demonstrated. With Swinject, it is easy to configure the dependencies and to get instances with the dependencies resolved. [In the next blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), we will see how to use Swinject with unit tests in the example weather app.
 
 [^1]: The cities listed in the example app are the summer Olympic host cities since 1976.
 [^2]: DI container is also called assembler, provider, builder, spring or injector.
