@@ -77,7 +77,7 @@ and `PetOwner` class has an instance of `Cat` as a pet to play with.
 Now we can instantiate `PetOwner` to play.
 
     let petOwner = PetOwner()
-    print(petOwner.play()) // prints "I'm plaing with Mimi. Meow!"
+    print(petOwner.play()) // prints "I'm playing with Mimi. Meow!"
 
 This is great if everyone is a cat person, but in reality some are dog persons. Because the instantiation of a `Cat` is hard-coded, `PetOwner` class depends on `Cat` class. The dependency must be decoupled to support `Dog` or other classes.
 
@@ -121,7 +121,7 @@ and `PetOwner` class is modified to get an `AnimalType` injected through its ini
 Now we can inject the dependency to `AnimalType` protocol when a `PetOwner` instance is created.
 
     let catOwner = PetOwner(pet: Cat(name: "Mimi"))
-    print(catOwner.play()) // prints "I'm plaing with Mimi. Meow!"
+    print(catOwner.play()) // prints "I'm playing with Mimi. Meow!"
 
 If we have `Dog` class,
 
@@ -140,7 +140,7 @@ If we have `Dog` class,
 we can play with a dog too.
 
     let dogOwner = PetOwner(pet: Dog(name: "Hachi"))
-    print(dogOwner.play()) // prints "I'm plaing with Hachi. Bow wow!"
+    print(dogOwner.play()) // prints "I'm playing with Hachi. Bow wow!"
 
 So far, we injected the dependency of `PetOwner` by ourselves, but if we get more dependencies as the app evolved, it is harder to maintain dependency injection by hand. Let's introduce Swinject to manage the dependencies here.
 
@@ -161,7 +161,7 @@ In the code above, we told the `container` to resolve `AnimalType` to a `Cat` in
 We have got the configured container. Let's get an instance of `PetOwner` from the `container`.
 
     let petOwner = container.resolve(PetOwner.self)!
-    print(petOwner.play()) // prints "I'm plaing with Mimi. Meow!"
+    print(petOwner.play()) // prints "I'm playing with Mimi. Meow!"
 
 It is so simple to configure a `Container` and to retrieve a resolved instance with its dependencies injected.
 
