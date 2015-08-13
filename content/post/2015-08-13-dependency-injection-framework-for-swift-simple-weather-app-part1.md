@@ -12,17 +12,23 @@ The source code used in this blog post is available at [a repository on GitHub](
 
 ![SwinjectSimpleExample Screenshot](/images/SwinjectSimpleExampleScreenshot.png)
 
-## Requirement
+## Requirements
+
+- Xcode 7 (beta)
+- OpenWeatherMap API key
+- CocoaPods 0.38 or later
 
 We are going to use Xcode 7 although it is still beta. It is beta 5 at the timing of writing this blog post. Xcode 7 supports `@testable import` to access `internal` types, functions or properties in unit test targets.
 
 Also, we will use [OpenWeatherMap](http://openweathermap.org) for a free API to get weather information. [Sign up](http://home.openweathermap.org/users/sign_up) and get a free API key.
 
+To install Swinject and some frameworks, we will use [CocoaPods](https://cocoapods.org).
+
 ## Preparation of the Project
 
 Let's start with a new Xcode project. Select `File > New > Project...` menu and `iOS > Application > Single View Application` item. Set  its product name to `SwinjectSimpleExample`, language to Swift and devices to iPhone. Check `Include Unit Tests` only[^1], then save it anywhere in your local storage.
 
-Then, we are going to install [Alamofire](https://github.com/Alamofire/Alamofire), [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON), [Swinject](https://github.com/Swinject/Swinject), [Quick](https://github.com/Quick/Quick) and [Nimble](https://github.com/Quick/Nimble) with CocoaPods. Create `Podfile` with the following text content in the project root directory. Then run `pod install` command to install them. Since Xcode 7 is still beta, specific commits of Alamofire and SwiftyJSON are specified[^2].
+Then, we are going to install [Alamofire](https://github.com/Alamofire/Alamofire), [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON), [Swinject](https://github.com/Swinject/Swinject), [Quick](https://github.com/Quick/Quick) and [Nimble](https://github.com/Quick/Nimble) with [CocoaPods](https://cocoapods.org). Create `Podfile` with the following text content in the project root directory. Then run `pod install` command to install them. Since Xcode 7 is still beta, specific commits of Alamofire and SwiftyJSON are specified[^2].
 
     source 'https://github.com/CocoaPods/Specs.git'
     platform :ios, '8.0'
@@ -37,7 +43,7 @@ Then, we are going to install [Alamofire](https://github.com/Alamofire/Alamofire
         pod 'Nimble', '2.0.0-rc.2'
     end
 
-Alamofire is a networking library to write request and asynchronous response simply. SwiftyJSON is a library to access JSON elements simply. Quick is a behavior-driven development framework to write tests as specs fluently. Nimble is a matcher framework that is expressive and supports asynchronous tests. For details, please visit their project pages.
+Alamofire is a networking library to write request and asynchronous response simply. SwiftyJSON is a library to access JSON elements simply. Quick is a [behavior-driven development](https://en.wikipedia.org/wiki/Behavior-driven_development) framework to write tests as specs in simple structures. Nimble is a matcher framework that is expressive and supports asynchronous tests. For details, please visit their project pages.
 
 To use the free weather API on iOS 9, we have to allow HTTP connections. Open `Info.plist` and add `NSAppTransportSecurity` dictionary with `NSAllowsArbitraryLoads` element set to `true`[^3].  [Here](http://stackoverflow.com/questions/30720813/cfnetwork-sslhandshake-failed-ios-9) is more information about the setting and its background.
 
@@ -140,7 +146,7 @@ Let's add a unit test to `SwinjectSimpleExampleTests` group in our project. The 
 
 With Quick and Nimble, each test is written in an `it` closure, and each expectation is expressed as `expect(something).to(condition)` or `expect(something).toNot(condition)` synchronously, or `expect(something).toEventually(condition)` or `expect(something).toEventuallyNot(condition)` asynchronously. `WeatherFetcher.fetch` sets `cities` asynchronously when weather data is retrieved, so we use the latter ones here.
 
-First, we check `cities`, which is initialized with `nil`, should be set to an array after `fetch` invokes the callback asynchronously. Second, the number of `cities` should be `12` because our request to the API has 12 city IDs. From the third to fifth, we check only the first city for simplicity. The `id`, `name` and `weather` should be `6077243`, "Montreal" and "Clouds" respectively.
+First, we check `cities`, which is initialized with `nil`, should be set to an array after `fetch` invokes the callback asynchronously. Second, the number of `cities` should be `12` because our request to the API has 12 city IDs. From the third to fifth, we check only the first city for simplicity. The `id`, `name` and `weather` should be `6077243`, `"Montreal"` and `"Clouds"` respectively.
 
 Okay. We are ready to run the unit test. Type `Command-U` to run. Did you see the test passed? I think some people saw it passed, but the others not. Why? Because the weather in "Montreal" in the real world right now must be "Clouds" to pass the test. How can we write a test passing regardless of the current weather? It is actually difficult to write if the part parsing JSON data depends on the part retrieving the data from the server.
 
@@ -174,7 +180,7 @@ Add `Network.swift` to implement `Network` that conforms `Networking` protocol. 
         }
     }
 
-Modify `WeatherFetcher` to get `Networking` injected when it is instantiated and to use it to request weather data to the server. Note that `fetch` and `decode` functions were static in the last section, but here they are instance methods to use the `networking` property. A default initializer taking `network` is implicitly created by Swift. Now `WeatherFetcher` has no dependency on Alamofire.
+Modify `WeatherFetcher` to get `Networking` injected when it is instantiated and to use it to request weather data to the server. Note that `fetch` and `decode` functions were `static` in the last section, but here they are instance methods to use the `networking` property. A default initializer taking `networking` is implicitly created by Swift. Now `WeatherFetcher` has no dependency on Alamofire.
 
 **WeatherFetcher.swift**
 
