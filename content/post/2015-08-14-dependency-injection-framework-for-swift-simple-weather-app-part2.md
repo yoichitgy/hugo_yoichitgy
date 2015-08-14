@@ -1,19 +1,19 @@
 +++
 date = "2015-08-14T17:14:24+09:00"
-draft = true
+draft = false
 slug = "dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-2"
 tags = ["swinject", "dependency-injection", "swift"]
 title = "Dependency Injection Framework for Swift - Simple Weather App Example with Swinject Part 2/2"
 
 +++
 
-In [the last blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), we developed the model part of the example weather app, and learnt how to remove tightly coupled dependencies by using dependency injection and [Swinject](https://github.com/Swinject/Swinject). We found the decoupling made unit testing easier. In this blog post, we are going to develop the UI part of the app, and will learn how to wire up the decoupled components with Swinject.
+In [the last blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), we developed the model part of the simple weather app, and learnt how to remove tightly coupled dependencies by using dependency injection and [Swinject](https://github.com/Swinject/Swinject). We found the decoupling made unit testing easier. In this blog post, we are going to develop the UI part of the app, and will learn how to wire up the decoupled components with Swinject.
 
 ## Basic UI Structure
 
 First, we are going to make a basic UI structure to show the weather information in a table view. The UI components will be instantiated from a storyboard, but instantiation of the storyboard itself will be written by hand to use `SwinjectStoryboard` inheriting `UIStoryboard`.
 
-Open `Info.plist` and remove `"Main storyboard file base name"` key, which might be displayed as `UIMainStoryboardFile` if you are showing raw keys.
+Open `Info.plist` and remove `"Main storyboard file base name"` key, which might be displayed as `"UIMainStoryboardFile"` if you are showing raw keys.
 
 Remove `ViewController.swift` and add `WeatherTablerViewController.swift`, which has an empty definition of `WeatherTablerViewController`. We will implement the class later with the dependency injection pattern.
 
@@ -121,9 +121,9 @@ Modify `AppDelegate` to instantiate `SwinjectStoryboard` with a configured `Cont
         ...
     }
 
-In `createContainer` method, first, a `Container` instance is created, then it is configured. `registerForStoryboard` is used to configure dependencies of a view controller. Here `WeatherTablerViewController` is configured to get `weatherFetcher` property set to a resolved instance of `WeatherFetcher`. This is called "property injection". `Networking` protocol, which was defined in [the last blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), is configured to be a `Network` instance encapsulating Alamofire. `WeatherFetcher` is configured to be initialized with a resolved `Networking` instance. This is called "initializer injection". At the end, the method returns the configured `container`.
+In `createContainer` method, first, a `Container` instance is created, then configured. `registerForStoryboard` is used to configure dependencies of a view controller. Here `WeatherTablerViewController` is configured to get `weatherFetcher` property set to a resolved instance of `WeatherFetcher`. This is called "property injection". `Networking` protocol, which was defined in [the last blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), is configured to be `Network` encapsulating Alamofire. `WeatherFetcher` is configured to be initialized with a resolved `Networking` instance. This is called "initializer injection". At the end, the method returns the configured `container`.
 
-In `application` method, the configured `container` is passed to `SwinjectStoryboard`. That's all. Simple, isn't it? Just configured and passed it.
+In `application:didFinishLaunchingWithOptions:` method, the configured `container` is passed to `SwinjectStoryboard`. That's all. Simple, isn't it? Just configured and passed it.
 
 Let's move on to the implementation of `WeatherTablerViewController`.
 
@@ -139,6 +139,8 @@ Let's move on to the implementation of `WeatherTablerViewController`.
         }
 
         override func viewWillAppear(animated: Bool) {
+            super.viewWillAppear(animated)
+
             weatherFetcher?.fetch {
                 if let cities = $0 {
                     self.cities = cities
@@ -172,9 +174,9 @@ Let's move on to the implementation of `WeatherTablerViewController`.
 
 First, `cities` property is added with an initial empty array of `City`. Setting the property triggers refreshing the table view.
 
-Second, `viewWillAppear` is overridden to start fetching weather information[^2] by `fetch` method. It takes a closure, and invokes the closure with an array of `City` when the weather data are retrieved. In the closure, `self.cities` property is set and the table view is refreshed consequently. If `fetch` fails, it passes `nil` to the closure. In this blog post, the error handling is omitted, but the source code in [the GitHub repository](https://github.com/Swinject/SwinjectSimpleExample) has an implementation to show an error message.
+Second, `viewWillAppear` is overridden to start fetching weather information[^2] by `fetch` method. It takes a closure, and invokes the closure with an array of `City` when the weather data are retrieved. In the closure, `self.cities` is set and the table view is refreshed consequently. If `fetch` fails, it passes `nil` to the closure. In this blog post, the error handling is omitted, but the source code in [the GitHub repository](https://github.com/Swinject/SwinjectSimpleExample) has an implementation to show an error message.
 
-At last, `tableView:numberOfRowsInSection` and `tableView:cellForRowAtIndexPath` are implemented to tell the number of rows and to set city name and weather labels of a cell.
+At last, `tableView:numberOfRowsInSection:` and `tableView:cellForRowAtIndexPath:` are implemented to tell the number of rows and to set city name and weather labels of a cell.
 
 We have finished implementing the UI. Let's run the app. You will see the table view filled with current weather information.
 
@@ -227,19 +229,19 @@ Add `WeatherTablerViewControllerSpec.swift` to `SwinjectSimpleExampleTests` with
         }
     }
 
-At the beginning, a mock of `Networking` is defined as `MockNetwork`. It has `request` method, but never returns a response. Instead, it increments a counter named `requestCount`. A mock is used to check whether methods or properties of an instance are called as intended. Although it may return dummy values like a stub does, the ability to check method or property calls differentiate a mock from stub.
+At the beginning, a mock of `Networking` is defined as `MockNetwork`. It has `request` method, but never returns a response. Instead, it increments a counter named `requestCount`. A mock is used to check whether methods or properties of an instance are called as intended. Although it may return dummy values like a stub does, the ability to check method or property calls differentiates a mock from a stub.
 
-In `spec`, we skip to `it` for now. First, instances of `MockNetwork` and `WeatherTablerViewController` are retrieved from the configured `container`. Because we know `Networking` is resolved to `MockNetwork`, we cast the returned instance to `MockNetwork`. Then, it is checked, by the `requestCount` counter, that `request` method of the mock is called once after `viewWillAppear` of the view controller is called. Although `WeatherTablerViewController` does not own `Networking` instance, we can ensure related instances are connected correctly by checking the call of the mocked method.
+In `spec`, we skip to `it` for now. First, instances of `MockNetwork` and `WeatherTablerViewController` are retrieved from the configured `container`. Because we know `Networking` is resolved to `MockNetwork`, we cast the returned instance to `MockNetwork`. Then, it is checked, by the `requestCount` counter, that `request` method of the mock is called once after `viewWillAppear` of the view controller is called. Although `WeatherTablerViewController` does not directly own `Networking` instance, we can ensure related instances are connected correctly by checking the call of the mocked method.
 
-Let's go back to the configuration of a `Container`. First, `Networking` is registered to be resolved to `MockNetwork`, and configured to shared within the `container`. By setting the object scope, it is ensured that the instance of `MockNetwork` to check the counter is identical to the instance indirectly owned by `WeatherTablerViewController`. Second, initializer injection of `WeatherFetcher` dependency is registered. Third, property injection of `WeatherTablerViewController` is registered.
+Let's go back to the configuration of the `container`. First, `Networking` is registered to be resolved to `MockNetwork`, and configured to be shared within the `container`. By setting the object scope, it is ensured that the instance of `MockNetwork` to check the counter is identical to the instance indirectly owned by `WeatherTablerViewController`. Second, initializer injection of `WeatherFetcher` dependency is registered. Third, property injection of `WeatherTablerViewController` dependency is registered.
 
-Let's run the unit test. Passed, right? Assume you keep developing the weather app to add more features. This unit test gives you confidence that you will never break the connection of the UI and model.
+Let's run the unit test. Passed, right? Assume you keep developing the weather app to add more features. The unit test gives you confidence that you will never break the connection of the UI and model.
 
 ## Conclusion
 
-We have developed the UI part of the simple weather app, and learnt how to wire the components with a dependency injection `Container`. `SwinjectStoryboard` makes it easy to inject dependencies to view controllers defined in a storyboard. We have learnt, at last, a mock can be used to test the components are wired as intended by checking a method call to the instance located at the terminal of the chain of dependencies.
+We have developed the UI part of the simple weather app, and learnt how to wire the components with a dependency injection container. `SwinjectStoryboard` makes it easy to inject dependencies to view controllers defined in a storyboard. We have learnt, at last, a mock can be used to ensure that the components are wired as intended by checking a method call to the instance located at the terminal of the chain of dependencies.
 
 In the next blog post, we will develop a larger example app in [MVVM](https://en.wikipedia.org/wiki/Model_View_ViewModel) architecture with the popular and elegant Swift [reactive programming](https://en.wikipedia.org/wiki/Reactive_programming) framework, [ReactiveCococa](https://github.com/ReactiveCocoa/ReactiveCocoa). Of course, we will take advantage of dependency injection with Swinject to wire up the MVVM components.
 
 [^1]: The instantiation of `SwinjectStoryboard` is a bit tricky because `UIStoryboard` does not have a normal designated initializer to override by its child classes. To workaround this problem, `SwinjectStoryboard` is instantiated with `create` function instead of an initializer.
-[^2]: We call `fetch` only in `viewWillAppear` in this example app, but a product app should have a button or something else to refresh the weather information.
+[^2]: In the example app, `fetch` is called only in `viewWillAppear`, but a product app should have a button or something else to refresh the weather information.
