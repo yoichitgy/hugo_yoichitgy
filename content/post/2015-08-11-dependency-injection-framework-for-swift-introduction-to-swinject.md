@@ -15,7 +15,7 @@ Let's start with an example. You are going to develop an app that lists current 
 
 The problem here is that the parts of network access and data processing are coupled. In other words, the data processing depends on the network access. If the dependency is hard-coded, it is difficult to write unit tests around the dependency. To solve the problem, the dependency should be passed from somewhere else. This is the dependency injection (DI) pattern. The external code provides dependencies to the client code. The injector is called DI container or simply container[^2].
 
-![SwinjectSimpleExample Screenshot](/images/SwinjectSimpleExampleScreenshot.png)
+![SwinjectSimpleExample Screenshot](/images/post/2015-08/SwinjectSimpleExampleScreenshot.png)
 
 ## Swinject
 

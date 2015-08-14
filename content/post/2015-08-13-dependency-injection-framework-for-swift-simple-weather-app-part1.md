@@ -10,7 +10,7 @@ In [the last blog post](/post/dependency-injection-framework-for-swift-introduct
 
 The source code used in this blog post is available at [a repository on GitHub](https://github.com/Swinject/SwinjectSimpleExample).
 
-![SwinjectSimpleExample Screenshot](/images/SwinjectSimpleExampleScreenshot.png)
+![SwinjectSimpleExample Screenshot](/images/post/2015-08/SwinjectSimpleExampleScreenshot.png)
 
 ## Requirements
 
@@ -306,7 +306,7 @@ Okay. We are ready to run the tests. Type `Command-U` to run. This time you got 
 
 ## Conclusion
 
-The problem of dependencies to write unit tests has been explained and fixed with dependency injection in the scenario to develop the app using the network service and JSON parser. By decoupling these two parts, the unit tests have become reproducible under any circumstances. In the next blog post, we will develop the UI part of the example app to learn how to use Swinject in a product app.
+The problem of dependencies to write unit tests has been explained and fixed with dependency injection in the scenario to develop the app using the network service and JSON parser. By decoupling these two parts, the unit tests have become reproducible under any circumstances. In [the next blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-2/), we will develop the UI part of the example app to learn how to use Swinject in a product app.
 
 [^1]: UI tests are excluded because still Xcode 7 is beta (just caring NDA). This blog post will be updated to include them after Xcode 7 is officially released.
 [^2]: `Podfile` in this blog post will be updated after Xcode 7 is officially released.
