@@ -6,6 +6,7 @@ disqusShortname = "yoichitgy"
 
 [Params]
 subtitle = "Swift patterns and practices"
+twitter = "https://twitter.com/yoichitgy"
 github = "https://github.com/yoichitgy"
 copyright = "© 2015 Yoichi Tagaya. All rights reserved."
 analytics = "UA-66106661-1"
