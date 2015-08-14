@@ -10,7 +10,7 @@ In [the last blog post](/post/dependency-injection-framework-for-swift-introduct
 
 The source code used in this blog post is available at [a repository on GitHub](https://github.com/Swinject/SwinjectSimpleExample).
 
-![SwinjectSimpleExample Screenshot](/images/SwinjectSimpleExampleScreenshot.png)
+![SwinjectSimpleExample Screenshot](/images/post/2015-08/SwinjectSimpleExampleScreenshot.png)
 
 ## Requirements
 

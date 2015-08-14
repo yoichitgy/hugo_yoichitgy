@@ -180,7 +180,7 @@ At last, `tableView:numberOfRowsInSection:` and `tableView:cellForRowAtIndexPath
 
 We have finished implementing the UI. Let's run the app. You will see the table view filled with current weather information.
 
-![SwinjectSimpleExample Screenshot](/images/SwinjectSimpleExampleScreenshot.png)
+![SwinjectSimpleExample Screenshot](/images/post/2015-08/SwinjectSimpleExampleScreenshot.png)
 
 We have already seen the app works, but let me add a unit test for `WeatherTablerViewController`. We are going to check the view controller starts fetching weather data when the view appears. In this test, we will see the concept of [mocking](https://en.wikipedia.org/wiki/Mock_object).
 
