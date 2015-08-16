@@ -233,7 +233,7 @@ Add `WeatherTableViewControllerSpec.swift` to `SwinjectSimpleExampleTests` with 
         }
     }
 
-At the beginning, a mock of `Networking` is defined as `MockNetwork`. It has `request` method, but never returns a response. Instead, it increments a counter named `requestCount`. A mock is used to check whether methods or properties of an instance are called as intended. Although it may return dummy values like a stub does, the ability to check method or property calls differentiates a mock from a stub.
+At the beginning, a mock of `Networking` is defined as `MockNetwork`. It has `request` method, but never returns a response. Instead, it increments a counter named `requestCount`. A mock is used to check whether methods or properties of an instance are called as intended. Although it may return dummy data like a stub does, the ability to check method or property calls differentiates a mock from a stub.
 
 In `spec`, we skip to `it` for now. First, instances of `MockNetwork` and `WeatherTableViewController` are retrieved from the configured `container`. Because we know `Networking` is resolved to `MockNetwork`, we cast the returned instance to `MockNetwork`. Then, it is checked, by the `requestCount` counter, that `request` method of the mock is called once after `viewWillAppear` of the view controller is called. Although `WeatherTableViewController` does not directly own `Networking` instance, we can ensure related instances are connected correctly by checking the call of the mocked method.
 
