@@ -174,13 +174,15 @@ Let's move on to the implementation of `WeatherTablerViewController`.
 
 First, `cities` property is added with an initial empty array of `City`. Setting the property triggers refreshing the table view.
 
-Second, `viewWillAppear` is overridden to start fetching weather information[^2] by `fetch` method. It takes a closure, and invokes the closure with an array of `City` when the weather data are retrieved. In the closure, `self.cities` is set and the table view is refreshed consequently. If `fetch` fails, it passes `nil` to the closure. In this blog post, the error handling is omitted, but the source code in [the GitHub repository](https://github.com/Swinject/SwinjectSimpleExample) has an implementation to show an error message.
+Second, `viewWillAppear` is overridden to start fetching weather information by `fetch` method[^2]. It takes a closure, and invokes the closure with an array of `City` when the weather data are retrieved. In the closure, `self.cities` is set and the table view is refreshed consequently. If `fetch` fails, it passes `nil` to the closure. In this blog post, the error handling is omitted, but the source code in [the GitHub repository](https://github.com/Swinject/SwinjectSimpleExample) has an implementation to show an error message.
 
 At last, `tableView:numberOfRowsInSection:` and `tableView:cellForRowAtIndexPath:` are implemented to tell the number of rows and to set city name and weather labels of a cell.
 
 We have finished implementing the UI. Let's run the app. You will see the table view filled with current weather information.
 
 ![SwinjectSimpleExample Screenshot](/images/post/2015-08/SwinjectSimpleExampleScreenshot.png)
+
+## Testing View Controller
 
 We have already seen the app works, but let me add a unit test for `WeatherTablerViewController`. We are going to check the view controller starts fetching weather data when the view appears. In this test, we will see the concept of [mocking](https://en.wikipedia.org/wiki/Mock_object).
 
@@ -233,7 +235,7 @@ At the beginning, a mock of `Networking` is defined as `MockNetwork`. It has `re
 
 In `spec`, we skip to `it` for now. First, instances of `MockNetwork` and `WeatherTablerViewController` are retrieved from the configured `container`. Because we know `Networking` is resolved to `MockNetwork`, we cast the returned instance to `MockNetwork`. Then, it is checked, by the `requestCount` counter, that `request` method of the mock is called once after `viewWillAppear` of the view controller is called. Although `WeatherTablerViewController` does not directly own `Networking` instance, we can ensure related instances are connected correctly by checking the call of the mocked method.
 
-Let's go back to the configuration of the `container`. First, `Networking` is registered to be resolved to `MockNetwork`, and configured to be shared within the `container`. By setting the object scope, it is ensured that the instance of `MockNetwork` to check the counter is identical to the instance indirectly owned by `WeatherTablerViewController`. Second, initializer injection of `WeatherFetcher` dependency is registered. Third, property injection of `WeatherTablerViewController` dependency is registered.
+Let's go back to the configuration of the `container`. First, `Networking` is registered to be resolved to `MockNetwork`, and its instance is configured to be shared within the `container`. By setting the object scope, it is ensured that the instance of `MockNetwork` to check the counter is identical to the instance indirectly owned by `WeatherTablerViewController`. Second, initializer injection of `WeatherFetcher` dependency is registered. Third, property injection of `WeatherTablerViewController` dependency is registered.
 
 Let's run the unit test. Passed, right? Assume you keep developing the weather app to add more features. The unit test gives you confidence that you will never break the connection of the UI and model.
 
