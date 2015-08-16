@@ -17,20 +17,20 @@ First, we are going to make a basic UI structure to show the weather information
 
 Open `Info.plist` and remove `"Main storyboard file base name"` key, which might be displayed as `"UIMainStoryboardFile"` if you are showing raw keys.
 
-Remove `ViewController.swift` and add `WeatherTablerViewController.swift`, which has an empty definition of `WeatherTablerViewController`. We will implement the class later with the dependency injection pattern.
+Remove `ViewController.swift` and add `WeatherTableViewController.swift`, which has an empty definition of `WeatherTableViewController`. We will implement the class later with the dependency injection pattern.
 
-**WeatherTablerViewController.swift**
+**WeatherTableViewController.swift**
 
     import UIKit
 
-    class WeatherTablerViewController: UITableViewController {
+    class WeatherTableViewController: UITableViewController {
     }
 
 Open `Main.storyboard` and remove the existing view controller. Then add a new navigation controller to the storyboard from the object library pane.
 
 Select the navigation controller and check `"Is Initial View Controller"` in the attribute inspector.
 
-Select the table view controller, which is the root view controller of the navigation controller, and set its custom class to `WeatherTablerViewController`. Select the prototype cell on the table view, and set its style to `Right Detail` and identifier to `"Cell"`. Select the navigation item on the table view controller, and set its title to `"Weather Now"`.
+Select the table view controller, which is the root view controller of the navigation controller, and set its custom class to `WeatherTableViewController`. Select the prototype cell on the table view, and set its style to `Right Detail` and identifier to `"Cell"`. Select the navigation item on the table view controller, and set its title to `"Weather Now"`.
 
 ![SwinjectSimpleExample Storyboard Screenshot](/images/post/2015-08/SwinjectSimpleExampleStoryboardScreenshot.png)
 
@@ -72,11 +72,11 @@ Now we are ready to run the app. Type `Command-R` to run. You will see an empty 
 
 Let's implement the empty table view controller and add dependency injection to it.
 
-Add `weatherFetcher` property to `WeatherTablerViewController`.
+Add `weatherFetcher` property to `WeatherTableViewController`.
 
-**WeatherTablerViewController.swift**
+**WeatherTableViewController.swift**
 
-    class WeatherTablerViewController: UITableViewController {
+    class WeatherTableViewController: UITableViewController {
         var weatherFetcher: WeatherFetcher?
     }
 
@@ -110,7 +110,7 @@ Modify `AppDelegate` to instantiate `SwinjectStoryboard` with a configured `Cont
 
         private func createContainer() -> Container {
             let container = Container()
-            container.registerForStoryboard(WeatherTablerViewController.self) { r, c in
+            container.registerForStoryboard(WeatherTableViewController.self) { r, c in
                 c.weatherFetcher = r.resolve(WeatherFetcher.self)
             }
             container.register(Networking.self) { _ in Network() }
@@ -123,15 +123,15 @@ Modify `AppDelegate` to instantiate `SwinjectStoryboard` with a configured `Cont
         ...
     }
 
-In `createContainer` method, first, a `Container` instance is created, then configured. `registerForStoryboard` is used to configure dependencies of a view controller. Here `WeatherTablerViewController` is configured to get `weatherFetcher` property set to a resolved instance of `WeatherFetcher`. This is called "property injection". `Networking` protocol, which was defined in [the last blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), is configured to be `Network` encapsulating Alamofire. `WeatherFetcher` is configured to be initialized with a resolved `Networking` instance. This is called "initializer injection". At the end, the method returns the configured `container`.
+In `createContainer` method, first, a `Container` instance is created, then configured. `registerForStoryboard` is used to configure dependencies of a view controller. Here `WeatherTableViewController` is configured to get `weatherFetcher` property set to a resolved instance of `WeatherFetcher`. This is called "property injection". `Networking` protocol, which was defined in [the last blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), is configured to be `Network` encapsulating Alamofire. `WeatherFetcher` is configured to be initialized with a resolved `Networking` instance. This is called "initializer injection". At the end, the method returns the configured `container`.
 
 In `application:didFinishLaunchingWithOptions:` method, the configured `container` is passed to `SwinjectStoryboard`. That's all. Simple, isn't it? Just configured and passed it.
 
-Let's move on to the implementation of `WeatherTablerViewController`.
+Let's move on to the implementation of `WeatherTableViewController`.
 
-**WeatherTablerViewController.swift**
+**WeatherTableViewController.swift**
 
-    class WeatherTablerViewController: UITableViewController {
+    class WeatherTableViewController: UITableViewController {
         var weatherFetcher: WeatherFetcher?
 
         private var cities = [City]() {
@@ -186,18 +186,18 @@ We have finished implementing the UI. Let's run the app. You will see the table 
 
 ## Testing View Controller
 
-We have already seen the app works, but let me add a unit test for `WeatherTablerViewController`. We are going to check the view controller starts fetching weather data when the view appears. In this test, we will see the concept of [mocking](https://en.wikipedia.org/wiki/Mock_object).
+We have already seen the app works, but let me add a unit test for `WeatherTableViewController`. We are going to check the view controller starts fetching weather data when the view appears. In this test, we will see the concept of [mocking](https://en.wikipedia.org/wiki/Mock_object).
 
-Add `WeatherTablerViewControllerSpec.swift` to `SwinjectSimpleExampleTests` with the following content.
+Add `WeatherTableViewControllerSpec.swift` to `SwinjectSimpleExampleTests` with the following content.
 
-**WeatherTablerViewControllerSpec.swift**
+**WeatherTableViewControllerSpec.swift**
 
     import Quick
     import Nimble
     import Swinject
     @testable import SwinjectSimpleExample
 
-    class WeatherTablerViewControllerSpec: QuickSpec {
+    class WeatherTableViewControllerSpec: QuickSpec {
         class MockNetwork: Networking {
             var requestCount = 0
 
@@ -215,8 +215,8 @@ Add `WeatherTablerViewControllerSpec.swift` to `SwinjectSimpleExampleTests` with
                 container.register(WeatherFetcher.self) { r in
                     WeatherFetcher(networking: r.resolve(Networking.self)!)
                 }
-                container.register(WeatherTablerViewController.self) { r in
-                    let controller = WeatherTablerViewController()
+                container.register(WeatherTableViewController.self) { r in
+                    let controller = WeatherTableViewController()
                     controller.weatherFetcher = r.resolve(WeatherFetcher.self)
                     return controller
                 }
@@ -224,7 +224,7 @@ Add `WeatherTablerViewControllerSpec.swift` to `SwinjectSimpleExampleTests` with
 
             it("starts fetching weather information when the view is about appearing.") {
                 let network = container.resolve(Networking.self) as! MockNetwork
-                let controller = container.resolve(WeatherTablerViewController.self)!
+                let controller = container.resolve(WeatherTableViewController.self)!
 
                 expect(network.requestCount) == 0
                 controller.viewWillAppear(true)
@@ -235,9 +235,9 @@ Add `WeatherTablerViewControllerSpec.swift` to `SwinjectSimpleExampleTests` with
 
 At the beginning, a mock of `Networking` is defined as `MockNetwork`. It has `request` method, but never returns a response. Instead, it increments a counter named `requestCount`. A mock is used to check whether methods or properties of an instance are called as intended. Although it may return dummy values like a stub does, the ability to check method or property calls differentiates a mock from a stub.
 
-In `spec`, we skip to `it` for now. First, instances of `MockNetwork` and `WeatherTablerViewController` are retrieved from the configured `container`. Because we know `Networking` is resolved to `MockNetwork`, we cast the returned instance to `MockNetwork`. Then, it is checked, by the `requestCount` counter, that `request` method of the mock is called once after `viewWillAppear` of the view controller is called. Although `WeatherTablerViewController` does not directly own `Networking` instance, we can ensure related instances are connected correctly by checking the call of the mocked method.
+In `spec`, we skip to `it` for now. First, instances of `MockNetwork` and `WeatherTableViewController` are retrieved from the configured `container`. Because we know `Networking` is resolved to `MockNetwork`, we cast the returned instance to `MockNetwork`. Then, it is checked, by the `requestCount` counter, that `request` method of the mock is called once after `viewWillAppear` of the view controller is called. Although `WeatherTableViewController` does not directly own `Networking` instance, we can ensure related instances are connected correctly by checking the call of the mocked method.
 
-Let's go back to the configuration of the `container`. First, `Networking` is registered to be resolved to `MockNetwork`, and its instance is configured to be shared within the `container`. By setting the object scope, it is ensured that the instance of `MockNetwork` to check the counter is identical to the instance indirectly owned by `WeatherTablerViewController`. Second, initializer injection of `WeatherFetcher` dependency is registered. Third, property injection of `WeatherTablerViewController` dependency is registered.
+Let's go back to the configuration of the `container`. First, `Networking` is registered to be resolved to `MockNetwork`, and its instance is configured to be shared within the `container`. By setting the object scope, it is ensured that the instance of `MockNetwork` to check the counter is identical to the instance indirectly owned by `WeatherTableViewController`. Second, initializer injection of `WeatherFetcher` dependency is registered. Third, property injection of `WeatherTableViewController` dependency is registered.
 
 Let's run the unit test. Passed, right? Assume you keep developing the weather app to add more features. The unit test gives you confidence that you will never break the connection of the UI and model.
 
