@@ -18,7 +18,7 @@ The source code used in this blog post is available at [a repository on GitHub](
 - OpenWeatherMap API key
 - CocoaPods 0.38 or later
 
-We are going to use Xcode 7 although it is still beta. It is beta 5 at the timing of writing this blog post. Xcode 7 supports `@testable import` to access `internal` types, functions or properties in unit test targets.
+We are going to use Xcode 7 although it is still beta. It is beta 6 at the timing of writing this blog post. Xcode 7 supports `@testable import` to access `internal` types, functions or properties in unit test targets.
 
 Also, we will use [OpenWeatherMap](http://openweathermap.org) for a free API to get weather information. [Sign up](http://home.openweathermap.org/users/sign_up) and get a free API key.
 
