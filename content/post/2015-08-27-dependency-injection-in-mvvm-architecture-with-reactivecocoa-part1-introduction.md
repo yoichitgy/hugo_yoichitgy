@@ -46,23 +46,13 @@ For the disadvantage of MVC, MVVM is getting popular to develop mobile apps or d
 
 ## ReactiveCocoa
 
-MVVM propagates events from Model to ViewModel and ViewModel to View. We are going to use ReactiveCocoa to handle the events. The framework provides APIs for composing and transforming event streams. Without ReactiveCocoa, events are represented by delegate methods, callback closures, `UIControl` actions, or KVO (Key-Value Observation). We had to write a different way of handling to each type of events. With ReactiveCocoa, an event is represented by `Event` and event streams are represented by `Signal` or `SignalProducer`. We can handle the events in the same abstracted way regardless of the original source of events. We will take advantage of the simplicity of the events with ReactiveCocoa. If you are new to ReactiveCocoa, it is recommended to read the following articles before proceeding to the next section of this blog post.
+MVVM propagates events from Model to ViewModel and ViewModel to View. We are going to use ReactiveCocoa to handle the events. The framework provides APIs for composing and transforming event streams. Without ReactiveCocoa, events are represented by delegate methods, callback closures, `UIControl` actions, or KVO (Key-Value Observation). We had to write a different way of handling to each type of events. With ReactiveCocoa, an event is represented by `Event` and event streams are represented by `Signal` or `SignalProducer`. We can handle the events in the same abstracted way regardless of the original source of events. We will take advantage of the simplicity of the events with ReactiveCocoa. If you are new to ReactiveCocoa, it is recommended to read the following articles before proceeding to the next blog post.
 
 ### References
 
 - [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa)
 - [Framework Overview](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/Documentation/FrameworkOverview.md)
 - [A First Look at ReactiveCocoa 3.0](http://blog.scottlogic.com/2015/04/24/first-look-reactive-cocoa-3.html)
-
-## Requirements
-
-- Xcode 7 beta 6
-- [Carthage](https://github.com/Carthage/Carthage) 0.7.5 or later
-- [Pixabay](https://pixabay.com/api/docs/) API username and key
-
-We are going to develop the example program in Swift 2 with Xcode 7 although they are still beta versions. To use with Swift 2, we are going to use development version of ReactiveCocoa in [swift2 branch of its repository](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/swift2). Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but APIs in swift2 branch are in protocol oriented style like `.map()` or `.flatMap()`. Since swift2 branch is still in development, the APIs might be changed in the future.
-
-You can get a free API username and key at [Pixabay](https://pixabay.com/). First, sign up and log in there. Then, access its [API documentation page](https://pixabay.com/api/docs/). Your API username and key will be displayed in "Request parameters" section.
 
 ## Conclusion
 
