@@ -34,7 +34,7 @@ On the other hand, in MVC (Model-View-Controler) architecture or pattern, Contro
 
 The problem of MVC is that Controller tends to get large and complex as a project evolves because it has to care of both Model and View, which mean everything. Actually MVC is a good pattern in web applications with the support of frameworks such as [Ruby on Rails](http://rubyonrails.org) or [ASP.NET MVC](http://www.asp.net/mvc), but in iOS apps MVC often makes monolithic and hard-to-maintain code.
 
-For the disadvantage of MVC, MVVM is getting popular to develop mobile apps or desktop apps. In iOS apps, the "View" of MVVM is composed of "View" (UIView) and "ViewController" (UIViewController). View logic, e.g. a value `1000` should be displayed as `"1,000"`, is implemented in ViewModel. View simply uses values provided by ViewModel to display. Model is responsible for business logic. Because of the separation of responsibilities, an iOS app in MVVM architecture is easier to test.
+For the disadvantage of MVC, MVVM is getting popular to develop mobile apps or desktop apps. In iOS apps, the "View" of MVVM is composed of "View" (UIView) and "ViewController" (UIViewController). View logic, e.g. a value `1000` should be displayed as `"1,000"`, is implemented in ViewModel. View simply uses values provided by ViewModel to display. Model is responsible for business logic. Because of the separation of the responsibilities, an iOS app in MVVM architecture is easier to test.
 
 ![iOS MVVM Diagram](/images/post/2015-08/Diagram-MVVM-iOS.png)
 
