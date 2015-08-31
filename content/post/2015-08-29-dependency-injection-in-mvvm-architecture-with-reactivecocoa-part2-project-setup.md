@@ -142,7 +142,7 @@ Then add the following paths to Input Files section by clicking `+` button.
     $(SRCROOT)/Carthage/Build/iOS/Result.framework
     $(SRCROOT)/Carthage/Build/iOS/Swinject.framework
 
-Again click the `+` button under Build Phases tab, select `New Copy Files Phase` and name the phase `Copy dSYMs`. Set its destination to `Products Directory`, and drag `Alamofire.framework.dSYM`, `Himotoki.framework.dSYM`, `ReactiveCocoa.framework.dSYM`, `Result.framework.dSYM`, `Swinject.framework.dSYM` from `Carthage/Build/iOS/` directory in Finder to the `Copy dSYMs` phase in Xcode. Right click on `SwinjectMVVMExample` in Project Navigator and select `New Group`. Name the new group `dSYMs` and put the dSYM files that were added to Project Navigator automatically into the group to tidy up.
+Again click the `+` button under Build Phases tab, select `New Copy Files Phase` and name the phase `Copy dSYMs`. Set its destination to `Products Directory`, and drag `Alamofire.framework.dSYM`, `Himotoki.framework.dSYM`, `ReactiveCocoa.framework.dSYM`, `Result.framework.dSYM` and `Swinject.framework.dSYM` from `Carthage/Build/iOS/` directory in Finder to the `Copy dSYMs` phase in Xcode. Right click on `SwinjectMVVMExample` in Project Navigator and select `New Group`. Name the new group `dSYMs` and put the dSYM files that were added to Project Navigator automatically into the group to tidy up.
 
 ![Screenshot dSYMs Group](/images/post/2015-08/SwinjectMVVMExampleScreenshotCarthageScriptAnddSYMs.png)
 
