@@ -104,7 +104,7 @@ To install them with [Carthage](https://github.com/Carthage/Carthage), add a tex
     github "Quick/Quick" "1fbcd8a05f6e896e2db66a2e82527b7f24766ef8"
     github "Quick/Nimble" "e3e3978ef610927d70eafd333e162855ad7b6f77"
 
-Run `carthage update --no-build` and `carthage build` in Terminal[^2]. Wait for a couple of minutes (or more) until Carthage finishes building the frameworks. If you use [Git](https://git-scm.com), here is a [`.gitignore` for Swift](https://github.com/github/gitignore/blob/master/Swift.gitignore) excluding frameworks built by Carthage[^3].
+Run `carthage update --no-build` and `carthage build` in Terminal[^2]. Wait for a couple of minutes (or more) until Carthage finishes building the frameworks[^3]. If you use [Git](https://git-scm.com), [here is a `.gitignore` for Swift](https://github.com/github/gitignore/blob/master/Swift.gitignore) excluding frameworks built by Carthage.
 
 After the build completes, right click on `SwinjectMVVMExample` in Project Navigator, and select `New Group`. Name the group `Frameworks`. Drag and drop the frameworks built in `Carthage/Build/iOS` directory in Finder to the group in Xcode. When you drop them, an action sheet asks you wether they should be added to targets. Uncheck all targets and click `Finish` button.
 
@@ -130,7 +130,7 @@ Select `ExampleModelTests` in Target section, click `+` button under Build Phase
 
 ![Screenshot Link Settings SwinjectMVVMExample](/images/post/2015-08/SwinjectMVVMExampleScreenshotLinkSettingsSwinjectMVVMExampleTests.png)
 
-The last settings are as specified in the README of [Carthage](https://github.com/Carthage/Carthage). Select `SwinjectMVVMExample` in Project Navigator, and select `SwinjectMVVMExample` in Targets section with Build Phases tab open. Click `+` button under the tab, and select `New Run Script Phase`. Rename the phase to `Run Script for Frameworks by Carthage` and add the following line to the script text field.
+The last settings are as specified in [the README of Carthage](https://github.com/Carthage/Carthage). Select `SwinjectMVVMExample` in Project Navigator, and select `SwinjectMVVMExample` in Targets section with Build Phases tab open. Click `+` button under the tab, and select `New Run Script Phase`. Rename the phase to `Run Script for Frameworks by Carthage` and add the following line to the script text field.
 
     /usr/local/bin/carthage copy-frameworks
 
