@@ -1,27 +1,26 @@
 +++
 date = "2015-08-31T01:10:55+09:00"
-draft = true
-slug = "dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-3-development-of-the-model"
+slug = "dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-3-designing-the-model"
 tags = ["swinject", "dependency-injection", "mvvm", "reactivecocoa", "swift", "alamofire", "himotoki"]
 title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 3: Designing the Model"
 
 +++
 
-In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-2-project-setup/), we setup an Xcode project to develop an app composed of Model, View and ViewModel frameworks. In this blog post, we are going to develop the Model part in the MVVM architecture. We will learn how to design Model entities and services with their dependencies injected. Decoupling of the dependencies is the advantage of the MVVM architecture. [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) is used for event handling, which is essential to decouple Model, View and ViewModel in the MVVM architecture. We will also learn how to use [Himotoki](https://github.com/ikesyo/Himotoki) to define mappings from JSON data to Swift types.
+In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-2-project-setup/), we setup an Xcode project to develop an app composed of Model, View and ViewModel frameworks. In this blog post, we are going to develop the Model part in the MVVM architecture. We will learn how to design our Model consisting of entities and services with dependencies injected. Decoupling of the dependencies is the advantage of the MVVM architecture. [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) is used for event handling, which is essential to decouple Model, View and ViewModel in the MVVM architecture. We will also learn how to use [Himotoki](https://github.com/ikesyo/Himotoki) to define mappings from JSON data to Swift types.
 
-The source code used in the blog posts is available at [a repository on GitHub](https://github.com/Swinject/SwinjectMVVMExample).
+The source code used in the blog post is available at [a repository on GitHub](https://github.com/Swinject/SwinjectMVVMExample).
 
 ![SwinjectMVVMExample ScreenRecord](/images/post/2015-08/SwinjectMVVMExampleScreenRecord.gif)
 
 ## Notice
 
-We are going to use Swift 2.0 with Xcode 7 though they are still in beta versions. To use with Swift 2.0, a development version of ReactiveCocoa in [swift2 branch](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/swift2) will be used. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but APIs in swift2 branch are in protocol oriented and fluent style like `.map()` or `.flatMap()`. Since swift2 branch is still in development, the APIs might be changed in the future. In the next blog post, we will develop the View and ViewModel parts of the app, and learn how to inject dependencies by [Swinject](https://github.com/Swinject/Swinject) in the MVVM architecture.
+We are going to use Swift 2.0 with Xcode 7 though they are still in beta versions. To use with Swift 2.0, a development version of ReactiveCocoa in [swift2 branch](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/swift2) will be used. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but APIs in swift2 branch are in protocol oriented and fluent style like `.map()` or `.flatMap()`. Since swift2 branch is still in development, the APIs might be changed in the future.
 
 ## Himotoki
 
-[Himotoki](https://github.com/ikesyo/Himotoki) is a type-safe JSON decoding library for Swift. It maps JSON elements to properties of a type with a simple definition of the mapping as `Decodable` protocol. The advantage of Himotoki is the support of mapping to read-only (`let`) properties.
+[Himotoki](https://github.com/ikesyo/Himotoki) is a type-safe JSON decoding library for Swift. It maps JSON elements to properties of a type with a simple definition of the mappings as `Decodable` protocol. The advantage of Himotoki is the support of mappings to read-only (`let`) properties.
 
-Its usage is simple. Assume that you want to map JSON like `{ "some_name": "Himotoki", "some_value": 1 }` to `SomeValue` type. To define the mapping, make `SomeValue` type conform `Decodable` protocol.
+Its usage is simple. Assume that you want to map JSON like `{ "some_name": "Himotoki", "some_value": 1 }` to `SomeValue` type. To define the mappings, make `SomeValue` type conform `Decodable` protocol.
 
     struct SomeValue {
         let name: String
@@ -37,9 +36,9 @@ Its usage is simple. Assume that you want to map JSON like `{ "some_name": "Himo
         }
     }
 
-In `decode` function, the mapping is defined as the parameters to `build` function. Here `some_name` is mapped to `name` property of `SomeValue`, and `some_value` to `value` property. The mappings are defined in the order as the properties of `SomeValue` type are defined.
+In `decode` function, the mappings are defined as the parameters to `build` function. Here `some_name` is mapped to `name` property of `SomeValue`, and `some_value` to `value` property. The mappings are defined in the order as the properties of `SomeValue` type are defined.
 
-To get a value mapped from JSON data, call `decode` function with JSON data as `[String: AnyObject]` returned from Alamofire or NSJSONSerialization.
+To get an instance mapped from JSON data, call `decode` function with JSON data as `[String: AnyObject]` returned from Alamofire or NSJSONSerialization.
 
     func testSomeValue() {
         // JSON data returned from Alamofire or NSJSONSerialization.
@@ -55,7 +54,7 @@ With Himotoki, you can reduce the code to handle JSON data[^1]. It also supports
 
 ## Pixabay API Spec
 
-According to [the API documentation of Pixabay](https://pixabay.com/api/docs/), a JSON response from Pixabay server is in the following format.
+According to [the API documentation of Pixabay](https://pixabay.com/api/docs/), a JSON response from Pixabay server is in the following format. It contains an array of image information (`hits`), and the numbers of total images (`total`) and available images (`totalHits`).
 
     {
         "total": 12274,
@@ -89,11 +88,9 @@ According to [the API documentation of Pixabay](https://pixabay.com/api/docs/), 
         ]
     }
 
-It contains an array of image information (`hits`), and the numbers of total images (`total`) and available images (`totalHits`). We are going to model the response in Swift.
-
 ## Model Design Overview
 
-Our Model is designed to be composed of entities and services. In short, an entity is a concept or object that exists in a model[^2]. A service is a stateless operation that does not fit in an entity.
+We are going to design our Model to be composed of entities and services. In short, an entity is a concept or object that exists in a model[^2]. A service is a stateless operation that does not fit in an entity.
 
 To decouple ViewModel and Model, and Model and external system, the interfaces are defined by protocols. In the diagram below, `ImageSearching` and `Networking` are protocols. `ImageSearch` and `Network` are their implementations conforming the protocols. `ViewModel` accesses `Model` through `ImageSearching` protocol, and its implementation `ImageSearch` accesses the external system through `Networking` protocol. The external system raises events with JSON data. The data are converted to `ResponseEntity` and `ImageEntity` by `ImageSearch` when the events are propagated to `ViewModel`.
 
@@ -101,7 +98,7 @@ To decouple ViewModel and Model, and Model and external system, the interfaces a
 
 ## Entities
 
-First, the image information in the JSON response is going to be modeled. Add `ImageEntity.swift` with the following content to `ExampleModel` target. To make sure the file is added to the target, right click on `ExampleModel` group (folder) in Project Navigator, and choose `New File...` then `Swift File`. When Xcode asks targets to add the file to, check only `ExampleModel`.
+In this section, we are going to define the entities representing an image and response obtained from Pixabay. Add `ImageEntity.swift` with the following content to `ExampleModel` target. To make sure the file is added to the target, right click on `ExampleModel` group (folder icon) in Project Navigator, and choose `New File...` then `Swift File`. When Xcode asks targets to add the file to, check only `ExampleModel`.
 
 **ImageEntity.swift**
 
@@ -167,9 +164,9 @@ First, the image information in the JSON response is going to be modeled. Add `I
 
 Notice that `ImageEntity` is defined as a `struct` with its properties immutable. The immutability keeps the users of the entity safe[^3]. Accessibility of the type is `public` because it is referenced from `ExampleViewModel` target.
 
-Some properties of `ImageEntity` are named differently from the JSON elements to match Swift naming convention and our app. The properties `id`, `viewCount`, `downloadCount` and `likeCount` are declared as `UInt64` or `Int64` to ensure they accept large values. JSON element `tags` as a [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) format string is mapped to an array of split strings by `(e <| "tags").map(splitCSV)`. By applying `?? []` to the returned value, an empty array is used if the `tags` is nil.
+Some properties of `ImageEntity` are named differently from the JSON elements to match Swift naming convention and our app. The properties `id`, `viewCount`, `downloadCount` and `likeCount` are declared as `UInt64` or `Int64` to ensure they accept large values even in 32-bit system. JSON element `tags` as a [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) format string is mapped to an array of split strings by `(e <| "tags").map(splitCSV)`. By applying `?? []` to the returned value, an empty array is used if the `tags` is nil.
 
-Second, add `ResponseEntity.swift` to `ExampleModel` target with the following text contents. Here `<||` operator is used to map an array. The `total` element in the JSON is ignored. If we find it is needed, we can add it later.
+Add `ResponseEntity.swift` to `ExampleModel` target with the following text contents. Here `<||` operator is used to map an array. The `total` element in the JSON is ignored. If we find it is necessary, we can add it later.
 
 **ResponseEntity.swift**
 
@@ -190,7 +187,7 @@ Second, add `ResponseEntity.swift` to `ExampleModel` target with the following t
         }
     }
 
-Let's test `ImageEntity` and `ResponseEntity`. Add `Dummy.swift` and `ImageEntitySpec.swift` with the following contents to `ExampleModelTests` target.
+To test `ImageEntity`, add `Dummy.swift` and `ImageEntitySpec.swift` with the following contents to `ExampleModelTests` target.
 
 **Dummy.swift**
 
@@ -268,7 +265,7 @@ Let's test `ImageEntity` and `ResponseEntity`. Add `Dummy.swift` and `ImageEntit
         }
     }
 
-In `Dummy.swift`, a dummy instance for JSON data is defined as `imageJSON`. Since Himotoki handles JSON data as `[String: AnyObject]` type returned from Alamofire or NSJSONSerialization, `imageJSON` is defined as `[String: AnyObject]`, not as `String`.
+In `Dummy.swift`, a dummy instance of JSON data is defined as `imageJSON`. Since Himotoki handles JSON data as `[String: AnyObject]` type returned from Alamofire or NSJSONSerialization, `imageJSON` is defined as `[String: AnyObject]`, not as `String`.
 
 `it("parses JSON data to create a new instance.")` checks that all the properties of `ImageEntity` are mapped from the JSON data.
 
@@ -304,7 +301,7 @@ Next add `ResponseEntitySpec.swift` with the following content to `ExampleModelT
         }
     }
 
-Type `Command-U` to run the unit tests. Passed. The tests passed without modifications, but, in actual development, we iterate fixing the model and tests until the tests pass.
+Type `Command-U` to run the unit tests. Passed. The tests passed without any problems, but, in actual development, we iterate fixing the entities and tests until the tests pass.
 
 ## Network Service
 
@@ -351,9 +348,9 @@ As we did in [the simple weather app example](/post/dependency-injection-framewo
         }
     }
 
-In [the previous blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), the network service took a callback to pass a response. This time, `requestJSON` method returns `SignalProducer<AnyObject, NetworkError>` to deliver network events to its observer. The `SignalProducer` takes a generic argument as `AnyObject` because Alamofire (or NSJSONSerialization) returns JSON data as `AnyObject` that is actually an array or dictionary.
+In [the previous example](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), the network service took a callback to pass a response. This time, `requestJSON` method returns `SignalProducer<AnyObject, NetworkError>` to deliver network events to its observer. The `SignalProducer` takes a generic argument as `AnyObject` because Alamofire (or NSJSONSerialization) returns JSON data as `AnyObject` that is actually an array or dictionary.
 
-The `requestJSON` method creates `SignalProducer` instance with its trailing closure, and returns the instance. Within the closure, an Alamofire response event is converted to a ReactiveCocoa event by calling `sendNext`, `sendCompleted` and `sendError`. Notice that the closure passed to `SignalProducer` is not actually called until `start` method is called on the `SignalProducer` instance.
+The `requestJSON` method creates `SignalProducer` instance with its trailing closure, and returns the instance. Within the closure, a response event of Alamofire is converted to a ReactiveCocoa event by calling `sendNext`, `sendCompleted` and `sendError`. Notice that the closure passed to `SignalProducer` is not actually invoked until `start` method is called on the `SignalProducer` instance.
 
 A dispatch queue is passed to Alamofire to run the response in a background thread because Alamofire by default runs the response in the main thread (main queue).
 
@@ -496,9 +493,9 @@ Let's add unit tests for the `Network` type. Add `NetworkSpec.swift` with the fo
         }
     }
 
-Here, [httpbin.org](https://httpbin.org/) is used as a stable and simple server to test the network. It is used by [unit tests of Alamofire](https://github.com/Alamofire/Alamofire/blob/1978c2c926b0eabedc858d4cde0533e00686ccd6/Tests/ResponseTests.swift) too. Access [https://httpbin.org/get?a=b&x=y](https://httpbin.org/get?a=b&x=y) with a browser, and you will see how it works.
+Here [httpbin.org](https://httpbin.org/) is used as a stable and simple server to test the network. It is used by [the unit tests of Alamofire](https://github.com/Alamofire/Alamofire/blob/1978c2c926b0eabedc858d4cde0533e00686ccd6/Tests/ResponseTests.swift) too. Access [https://httpbin.org/get?a=b&x=y](https://httpbin.org/get?a=b&x=y) with a browser, and you will see how it works.
 
-The first test checks the JSON response has `"a"` and `"x"` elements with "b" and "y" values as specified in the test parameters. `json` parameter is used to store the response from the server. To add an observer (or event handler) to the `SignalProducer` returned from `requestJSON`, `on` method is used with a closure to set the `json` response. Then `start` is called to get the `SignalProducer` initiating its signal. The response is checked asynchronously with `toEventually` method.
+The first test checks the JSON response has `"a"` and `"x"` elements with `"b"` and `"y"` values as specified in the request parameters. `json` parameter is used to store the response from the server asynchronously. To add an observer (namely an event handler) to the `SignalProducer` returned from `requestJSON`, `on` method is used with a closure to set the `json` response. Then `start` is called to get the `SignalProducer` initiating its signal. The response is checked asynchronously with `toEventually` method.
 
 The second test checks `NetworkError` is sent in case of an error. To emulate an error, a URL that does not exist is passed to `requestJSON`.
 
@@ -506,9 +503,9 @@ Run the unit tests, and let's move on to the next section.
 
 ## Image Search Service
 
-In this section, we are going to implement a service to search images through [Pixabay API](https://pixabay.com/api/docs/). This is the main part of `ExampleModel`.
+In this section, we are going to define the service to search images through Pixabay API. This is the main part of `ExampleModel`.
 
-First, add `Pixabay.swift` with the following content to `ExampleModel` target. It defines the API URL and parameters. Please fill `apiUsername` and `apiKey` with your own username and API key obtained from [Pixabay](https://pixabay.com/api/docs/).
+First, add `Pixabay.swift` with the following content to `ExampleModel` target. It defines the URL and parameters for the API. Please fill `apiUsername` and `apiKey` with [your own username and API key obtained from Pixabay](https://pixabay.com/api/docs/).
 
 **Pixabay.swift**
 
@@ -573,9 +570,9 @@ Third, add `ImageSearch.swift` with the following content to `ExampleModel` targ
         }
     }
 
-`ImageSearch` has dependency on `Networking` injected through the initializer as initializer injection pattern.
+`ImageSearch` has dependency on `Networking` injected through the initializer as [initializer injection pattern](https://github.com/Swinject/Swinject/blob/master/Documentation/InjectionPatterns.md).
 
-`searchImages` method converts `SignalProducer<AnyObject, NetworkError>` returned from `network.requestJSON` to `SignalProducer<ResponseEntity, NetworkError>`. To convert the `SignalProducer`, `attemptMap` is used. The closure passed to `attemptMap` calls `decode` to map the JSON data to a `ResponseEntity` instance. If the mapping succeeds, the mapped response is returned as `Result(value: response)`. Otherwise, an error is returned as `Result(error: .IncorrectDataReturned)`. If you converts a value not to an error but to another value only, you can just use `map` method on `SignalProducer`.
+`searchImages` method converts `SignalProducer<AnyObject, NetworkError>` returned from `network.requestJSON` to `SignalProducer<ResponseEntity, NetworkError>`. To convert the `SignalProducer`, `attemptMap` is used. The closure passed to `attemptMap` calls `decode` to map the JSON data to a `ResponseEntity` instance. If the mapping succeeds, the mapped response is returned as `Result(value: response)`. Otherwise, an error is returned as `Result(error: .IncorrectDataReturned)`. If you convert a value not to an error but to another value only, you can just use `map` method on `SignalProducer`.
 
 The cast of `decode(json) as ResponseEntity?` looks irregular, but it helps Swift compiler infer that `decode` function on `ResponseEntity` type should be used. If the cast is `decode(json) as? ResponseEntity`, the source code cannot be compiled.
 
@@ -671,15 +668,17 @@ Let's write unit tests. Add `ImageSearchSpec.swift` with the following content t
 
 At the beginning, three stubs are defined. `GoodStubNetwork` returns a `SignalProducer` that sends correct JSON data. `BadStubNetwork` returns a `SignalProducer` that sends incorrect JSON data as an empty dictionary. `ErrorStubNetwork` returns a `SignalProducer` that does not send JSON data but an error. All the `SignalProducer`s send the events in a background thread emulating an asynchronous network response by specifying `.observeOn(QueueScheduler())`.
 
-In `spec()`, three unit tests (or specs) are defined. The first test checks the case that `attemptMap` successfully converts JSON data to a `ResponseEntity`. The second test checks the case that `attemptMap` converts JSON data to an error. The third test checks the case that the error sent from `ErrorStubNetwork` is passed through `ImageSearch`.
+In `spec()`, three unit tests (or specs) are defined. The first one checks the case that `attemptMap` successfully converts JSON data to a `ResponseEntity`. The second one checks the case that `attemptMap` converts JSON data to an error. The third one checks the case that the error sent from `ErrorStubNetwork` is passed through `ImageSearch`.
 
 Type `Command-U` to run the tests. Passed! We finished implementing the main part of our model in MVVM architecture.
 
 ## Conclusion
 
-Through the development of the Model part of the example app in MVVM architecture, we learned how to design the Model to decouple ViewModel and Model, and Model and the external system. Protocols were used to remove the direct dependencies on the implementations. ReactiveCocoa was used to handle events between the decoupled components. Also we found Himotoki was helpful to map JSON data to our entities.
+Through the development of the Model part of the example app in MVVM architecture, we learned how to design the Model to decouple from ViewModel and the external system. Protocols were used to remove the direct dependencies on the implementations. ReactiveCocoa was used to handle events between the decoupled components. Also we found Himotoki was helpful to map JSON data to our entities. In the next blog post, we will design and implement View and ViewModel parts.
+
+If you have questions, suggestions or problems, feel free to leave comments.
 
 [^1]: If you are familiar with [functional programming](https://en.wikipedia.org/wiki/Functional_programming), [Argo](https://github.com/thoughtbot/Argo) is also a good choice for a JSON parser.
 [^2]: In [DDD (Domain-Driven Design)](https://en.wikipedia.org/wiki/Domain-driven_design), an entity is a concept of a domain model and is defined by its identity. In our project, the term is used to mean just a concept or object regardless of its identity.
-[^3]: Refer to [this page](http://programmers.stackexchange.com/questions/151733/if-immutable-objects-are-good-why-do-people-keep-creating-mutable-objects) to know more about pros and cons of immutability and mutability.
+[^3]: Refer to [this page](http://programmers.stackexchange.com/questions/151733/if-immutable-objects-are-good-why-do-people-keep-creating-mutable-objects) to know more about immutability and mutability.
 [^4]: "[How to Implement the ErrorType Protocol](https://realm.io/news/testing-swift-error-type/)" is worth reading about `ErrorType`.
