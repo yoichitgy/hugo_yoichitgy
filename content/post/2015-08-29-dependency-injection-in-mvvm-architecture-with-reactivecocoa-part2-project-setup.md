@@ -152,7 +152,7 @@ Configurations! You got the project set up. Try running the app and unit tests b
 
 ## Conclusion
 
-We found that the architecture of the app composed of Model, View and ViewModel frameworks ensured the direction of dependencies was consistent from View to ViewModel and ViewModel to Model. We setup the Xcode project in the MVVM architecture, and installed some external frameworks with Carthage. In the next blog post, we will start developing the app with ReactiveCocoa and Swinject to take advantage of the MVVM architecture.
+We found that the architecture of the app composed of Model, View and ViewModel frameworks ensured the direction of dependencies was consistent from View to ViewModel and ViewModel to Model. We setup the Xcode project in the MVVM architecture, and installed some external frameworks with Carthage. In [the next blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-3-designing-the-model/), we will start developing the app with ReactiveCocoa and Swinject to take advantage of the MVVM architecture.
 
 If you have questions, suggestions or problems, feel free to leave comments.
 
