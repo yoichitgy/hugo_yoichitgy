@@ -1,7 +1,7 @@
 +++
 date = "2015-08-29T10:00:28+09:00"
 slug = "dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-2-project-setup"
-tags = ["swinject", "dependency-injection", "mvvm", "reactivecocoa", "swift"]
+tags = ["swinject", "dependency-injection", "mvvm", "reactivecocoa", "swift", "carthage"]
 title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 2: Project Setup"
 
 +++
