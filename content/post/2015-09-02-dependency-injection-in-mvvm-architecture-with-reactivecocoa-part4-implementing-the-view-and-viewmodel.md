@@ -1,29 +1,26 @@
 +++
 date = "2015-09-02T12:10:55+09:00"
-draft = "true"
 slug = "dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-4-implementing-the-view-and-viewmodel"
 tags = ["swinject", "dependency-injection", "mvvm", "reactivecocoa", "swift"]
 title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 4: Implementing the View and ViewModel"
 
 +++
 
-In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-3-designing-the-model/), we developed the Model part of the example app. In this blog post, we will move on to the View and ViewModel parts. First, empty implementations of View and ViewModel will be added to get working software. Then actual implementations will be added. During the development, we will learn how to use `PropertyOf` and `MutableProperty`, which are observable property types provided by [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa/).
+In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-3-designing-the-model/), we developed the Model part of the example app. In this blog post, we will move on to the View and ViewModel parts. First, empty implementation of View and ViewModel will be added to the project to get working software. Then actual implementation will be added with unit tests. During the development, we will learn how to use `PropertyOf` and `MutableProperty` types, which are observable properties provided by [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa/).
 
 ## Notice
 
-In the example project, Swift 2.0 with Xcode 7 are used though they are still in beta versions. To use with Swift 2.0, a development version of ReactiveCocoa in [swift2 branch](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/swift2) will be used. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but APIs in swift2 branch are in protocol oriented and fluent style like `.map()` or `.flatMap()`. Since swift2 branch is still in development, the APIs might be changed in the future.
+In the example project, Swift 2.0 with Xcode 7 is used though they are still in beta versions. To use with Swift 2.0, a development version of ReactiveCocoa in [swift2 branch](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/swift2) is used. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but APIs in swift2 branch are in protocol oriented and fluent style like `.map()` or `.flatMap()`. Since swift2 branch is still in development, the APIs might be changed in the future.
 
 ## View and ViewModel Design Overview
 
-To decouple View and ViewModel, the interfaces are defined by protocols. In the diagram below, `ImageSearchTableViewModeling` and `ImageSearchTableViewCellModeling` are protocols. `ImageSearchTableViewModel` and `ImageSearchTableViewCellModel` are their implementations conforming the protocols. `ImageSearchTableViewModel` receives image entities wrapped in an event from the Model layer, and converts them to `ImageSearchTableViewCellModel`s to pass to `ImageSearchTableViewController`.
-
-
+To decouple View and ViewModel, the interfaces are defined as protocols as shown in the diagram below. `ImageSearchTableViewModeling` and `ImageSearchTableViewCellModeling` are protocols. `ImageSearchTableViewModel` and `ImageSearchTableViewCellModel` are their implementation conforming the protocols. `ImageSearchTableViewModel` receives image entities wrapped in an event from the Model layer, and converts them to `ImageSearchTableViewCellModel` instances to pass to `ImageSearchTableViewController` in an event.
 
 ![View and View Model Design](/images/post/2015-09/SwinjectMVVMExampleViewAndViewModelDesign.png)
 
-## Empty Implementations of View and ViewModel
+## Empty Implementation of View and ViewModel
 
-At the beginning, we are going to add empty implementations of View and ViewModel with their dependencies injected by [Swinject](https://github.com/Swinject/Swinject). You can get still empty but working software first, then add features one by one as [the Agile practices](https://en.wikipedia.org/wiki/Agile_software_development) promote.
+At the beginning, we are going to add empty implementation of View and ViewModel with dependency injection by [Swinject](https://github.com/Swinject/Swinject). You can get still empty but working software first, then add features one by one as [the Agile practices](https://en.wikipedia.org/wiki/Agile_software_development) promote.
 
 ### Adding Empty View
 
@@ -58,7 +55,7 @@ Select the table view controller, which is the root view controller of the navig
 ![SwinjectMVVMExampleEmptyViewStoryboard](/images/post/2015-09/SwinjectMVVMExampleEmptyViewStoryboard.png)
 
 
-Modify `AppDelegate.swift` in `SwinjectMVVMExample` group to instantiate the initial view controller from the storyboard by hand. Here, we use `SwinjectStoryboard` instead of `UIStoryboard` to add dependency injection later. The instantiation of `SwinjectStoryboard` is not performed with a initializer but `create` function[^1]. The bundle passed to `SwinjectStoryboard` is not the main bundle but the bundle in `ExampleView` target. `NSBundle.init(forClass:)` is used to get the bundle.
+Modify `AppDelegate.swift` in `SwinjectMVVMExample` group to instantiate the initial view controller from the storyboard by hand. Here, we use `SwinjectStoryboard` instead of `UIStoryboard` to add dependency injection later. The instantiation of `SwinjectStoryboard` is not performed with an initializer but `create` function[^1]. The bundle passed to `SwinjectStoryboard` is not the main bundle but the bundle in `ExampleView` target. `NSBundle.init(forClass:)` is used to get the bundle.
 
 **AppDelegate.swift**
 
@@ -126,7 +123,7 @@ Add `ImageSearchTableViewCellModeling.swift` and `ImageSearchTableViewCellModel.
     public final class ImageSearchTableViewCellModel: ImageSearchTableViewCellModeling {
     }
 
-Add the dependencies on the view models to `ImageSearchTableViewController` and `ImageSearchTableViewCell` by [property injection pattern](https://github.com/Swinject/Swinject/blob/master/Documentation/InjectionPatterns.md).
+Add the dependencies on the view models to `ImageSearchTableViewController` and `ImageSearchTableViewCell` as below by [property injection pattern](https://github.com/Swinject/Swinject/blob/master/Documentation/InjectionPatterns.md).
 
 **ImageSearchTableViewController.swift**
 
@@ -148,7 +145,7 @@ Add the dependencies on the view models to `ImageSearchTableViewController` and 
 
 ### Applying Dependency Injection
 
-To apply dependency injection in `AppDelegate, add `container` property with the registrations of the dependencies as below. The `container` is passed to `SwinjectStoryboard` when it is created.
+To apply dependency injection in `AppDelegate`, add `container` property registering the dependencies as below. The `container` is passed to the factory method of `SwinjectStoryboard`.
 
 **AppDelegate.swift**
 
@@ -205,7 +202,7 @@ To apply dependency injection in `AppDelegate, add `container` property with the
         // Omitted...
     }
 
-To ensure all the types are registered to `container`, we should add unit tests. Before adding the tests, delete  `SwinjectMVVMExampleTests.swift`, which is unnecessary, in `SwinjectMVVMExampleTests` group. Then add `AppDelegateSpec.swift` with the following content. The tests use `.notTo(beNil())` to check the types can be resolved by `container`.
+To ensure all the types are registered to `container`, we should add unit tests. Before adding the tests, delete  `SwinjectMVVMExampleTests.swift`, which is unnecessary, in `SwinjectMVVMExampleTests` group. Then add `AppDelegateSpec.swift` with the following content to the group. The tests use `.notTo(beNil())` to check the types can be resolved by `container`.
 
 **AppDelegateSpec.swift**
 
@@ -250,11 +247,11 @@ To ensure all the types are registered to `container`, we should add unit tests.
         }
     }
 
-Type `Command-U` and run the unit tests. Passed, right? We got the empty implementations of View and ViewModel with the dependencies injected.
+Input `Command-U` and run the unit tests. Passed, right? We got the empty implementation of View and ViewModel with the dependencies injected.
 
 ## Actual Implementation of View and ViewModel
 
-In this section, we are going to add actual implementations of View and ViewModel to the project to display image meta data (tags and pixel sizes) in the table view. Although we will add a `UIImageView` to the table view cell, only the labels for the meta data are implemented in this blog post. The image view will be used in the next blog post.
+In this section, we are going to add actual implementation of View and ViewModel to display image meta data (tags and pixel sizes) in the table view. Although we will add a `UIImageView` to the table view cell, only the labels for the meta data are implemented in this blog post. The image view will be used in the next blog post.
 
 ### ViewModel Implementation
 
@@ -269,7 +266,7 @@ First, let's implement the table data source. In MVVM architecture, the data sou
         func startSearch()
     }
 
-`cellModels` property is defined as [`PropertyOf` type](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/Swift/Property.swift) to make it observable. The type provides `producer` property as `SignalProducer` to add an observer.
+`cellModels` property is defined as [`PropertyOf` type](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/Swift/Property.swift) to make it observable. The type provides `producer` property as `SignalProducer` type to add observers.
 
 Modify `ImageSearchTableViewModel` to implement the property and method.
 
@@ -293,7 +290,10 @@ Modify `ImageSearchTableViewModel` to implement the property and method.
         public func startSearch() {
             imageSearch.searchImages()
                 .map { response in
-                    response.images.map { ImageSearchTableViewCellModel(image: $0) as ImageSearchTableViewCellModeling }
+                    response.images.map {
+                        ImageSearchTableViewCellModel(image: $0)
+                            as ImageSearchTableViewCellModeling
+                    }
                 }
                 .observeOn(UIScheduler())
                 .on(next: { cellModels in
@@ -304,9 +304,9 @@ Modify `ImageSearchTableViewModel` to implement the property and method.
     }
 ```
 
-`cellModels` property wraps `_cellModels` property as [`MutableProperty` type](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/Documentation/FrameworkOverview.md#properties). Because the type is not only observable but also modifiable, `_cellModels` is `private` and is wrapped by `PropertyOf` type, which is read-only.
+`cellModels` property wraps `_cellModels` property as [`MutableProperty` type](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/Documentation/FrameworkOverview.md#properties). Because the type is not only observable but also modifiable, `_cellModels` is `private` and is wrapped by `PropertyOf` type to provide a read-only property.
 
-`startSearch` method starts the `SignalProducer` returned by `imageSearch.searchImages`. As a side effect, it sets the value of `_cellModels` to an array of `ImageSearchTableViewCellModeling`s that is mapped from `response` from `imageSearch`. Notice that the side effect is configured to run in the main thread by `.observeOn(UIScheduler())`. ViewModel should ensure that events from ViewModel to View are performed in the main thread.
+`startSearch` method starts the `SignalProducer` returned by `imageSearch.searchImages`. As a side effect on the `next` event, it sets the value of `_cellModels` to an array of `ImageSearchTableViewCellModeling` instances that is mapped from `response` from `imageSearch`. Notice that the side effect is configured to run in the main thread by `.observeOn(UIScheduler())`. ViewModel should ensure that events from ViewModel to View are performed in the main thread.
 
 ReactiveCocoa provides two types of schedulers to run on the main thread. One is `QueueScheduler.mainQueueScheduler`, which delivers events always on the main thread asynchronously. The other is `UIScheduler`, as we used, which delivers events on the main thread synchronously if they are already on the main thread, otherwise asynchronously.
 
@@ -469,7 +469,7 @@ In this section, we are going to implement our View. Open `Main.storyboard` and 
 
 ![SwinjectMVVMExampleStoryboardCellLayout](/images/post/2015-09/SwinjectMVVMExampleStoryboardCellLayout.png)
 
-Then add outlets to `ImageSearchTableViewCell` and connect them.
+Then add outlets to `ImageSearchTableViewCell` and connect them with the items in the storyboard.
 
 **ImageSearchTableViewCell.swift**
 
@@ -484,12 +484,12 @@ Then add outlets to `ImageSearchTableViewCell` and connect them.
             }
         }
 
-        @IBOutlet weak var thumbnailImageView: UIImageView!
+        @IBOutlet weak var previewImageView: UIImageView!
         @IBOutlet weak var tagLabel: UILabel!
         @IBOutlet weak var imageSizeLabel: UILabel!
     }
 
-Also `didSet` observer is added to `viewModel` property to set label texts when the view model is assigned.
+Notice `didSet` observer is added to `viewModel` property to set label texts when the view model is assigned. An image will be added to the image view in the next blog post.
 
 Add implementation to `ImageSearchTableViewController` as below.
 
@@ -610,7 +610,7 @@ Type `Command-U` and run the test. Passed!
 
 ## Conclusion
 
-We implemented the View and ViewModel parts of the example app. First, the empty View and ViewModel were added to the project and wired up by dependency injection to get working software as the agile practices promote. Then the actual implementations were added. We learned `PropertyType`s of ReactiveCocoa. `MutableProperty` was used as an observable property with its value modifiable. `PropertyOf` was used to provide a read-only view to `MutableProperty`. In the next blog post, we are going to implement asynchronous image load feature.
+We implemented the View and ViewModel parts of the example app. First, the empty implementation of View and ViewModel was added to the project to get working software as the agile practices promote. Then the actual implementation was added. It was demonstrated that the dependencies of Model, View and ViewModel were injected by the application. By adding `container` as a property of `AppDelegate`, the dependency injection was tested. We learned property types of ReactiveCocoa. `MutableProperty` was used as an observable property with its value modifiable. `PropertyOf` was used to provide a read-only view to `MutableProperty`. In the next blog post, we will implement asynchronous image load feature.
 
 If you have questions, suggestions or problems, feel free to leave comments.
 
