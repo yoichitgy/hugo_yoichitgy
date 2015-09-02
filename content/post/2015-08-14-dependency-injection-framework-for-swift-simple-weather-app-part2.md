@@ -34,7 +34,7 @@ Select the table view controller, which is the root view controller of the navig
 
 ![SwinjectSimpleExample Storyboard Screenshot](/images/post/2015-08/SwinjectSimpleExampleStoryboardScreenshot.png)
 
-Modify `AppDelegate.swift` to instantiate the initial view controller from the storyboard by hand. Here, we use `SwinjectStoryboard` instead of `UIStoryboard` to add dependency injection later. The instantiation of `SwinjectStoryboard` is not performed with a initializer but `create`  function[^1].
+Modify `AppDelegate.swift` to instantiate the initial view controller from the storyboard by hand. Here, we use `SwinjectStoryboard` instead of `UIStoryboard` to add dependency injection later. The instantiation of `SwinjectStoryboard` is not performed with an initializer but `create`  function[^1].
 
 **AppDelegate.swift**
 
