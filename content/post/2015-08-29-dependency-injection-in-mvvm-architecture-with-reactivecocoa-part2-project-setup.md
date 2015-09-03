@@ -104,7 +104,7 @@ To install them with [Carthage](https://github.com/Carthage/Carthage), add a tex
     github "Quick/Quick" "1fbcd8a05f6e896e2db66a2e82527b7f24766ef8"
     github "Quick/Nimble" "e3e3978ef610927d70eafd333e162855ad7b6f77"
 
-Run `carthage update --no-build` and `carthage build` in Terminal[^2]. Wait for a couple of minutes (or more) until Carthage finishes building the frameworks[^3]. If you use [Git](https://git-scm.com), [here is a `.gitignore` for Swift](https://github.com/github/gitignore/blob/master/Swift.gitignore) excluding frameworks built by Carthage.
+Run `carthage update --no-use-binaries` in Terminal[^2]. Wait for a couple of minutes (or more) until Carthage finishes building the frameworks[^3]. If you use [Git](https://git-scm.com), [here is a `.gitignore` for Swift](https://github.com/github/gitignore/blob/master/Swift.gitignore) excluding frameworks built by Carthage.
 
 After the build completes, right click on `SwinjectMVVMExample` in Project Navigator, and select `New Group`. Name the group `Frameworks`. Drag and drop the frameworks built in `Carthage/Build/iOS` directory in Finder to the group in Xcode. When you drop them, an action sheet asks you wether they should be added to targets. Uncheck all targets and click `Finish` button.
 
@@ -157,6 +157,6 @@ We found that the architecture of the app composed of Model, View and ViewModel 
 If you have questions, suggestions or problems, feel free to leave comments.
 
 [^1]: UI tests are excluded because still Xcode 7 is beta. This blog post will be updated to include them after Xcode 7 is officially released.
-[^2]: `carthage update --no-build` and `carthage build` commands are separately used to avoid downloading zipped frameworks built with an older beta version of Xcode. If you install official release versions of the frameworks for an official release version of Xcode, you can just run `carthage update`.
-[^3]: If you get an error on `carthage build` command, run it again with `--verbose` as `carthage build --verbose` to investigate the problem.
+[^2]: `--no-use-binaries` option is supplied to `carthage update` command to avoid downloading zipped frameworks built with an older beta version of Xcode. If you install official release versions of the frameworks for an official release version of Xcode, you can just run `carthage update`.
+[^3]: If you get an error on `carthage update --no-use-binaries` command, run it again with `--verbose` option too to investigate the problem.
 [^4]: `Result.framework` is used by ReactiveCocoa.
