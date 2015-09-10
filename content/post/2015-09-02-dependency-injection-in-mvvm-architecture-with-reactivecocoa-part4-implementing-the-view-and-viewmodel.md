@@ -8,6 +8,8 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 4: Im
 
 In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-3-designing-the-model/), we developed the Model part of the example app. In this blog post, we will move on to the View and ViewModel parts. First, empty implementation of View and ViewModel will be added to the project to get working software. Then actual implementation will be added with unit tests. During the development, we will learn how to use `PropertyOf` and `MutableProperty` types, which are observable properties provided by [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa/).
 
+The source code used in the blog post is available at [a repository on GitHub](https://github.com/Swinject/SwinjectMVVMExample).
+
 ## Notice
 
 In the example project, Swift 2.0 with Xcode 7 is used though they are still in beta versions. To use with Swift 2.0, a development version of ReactiveCocoa in [swift2 branch](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/swift2) is used. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but APIs in swift2 branch are in protocol oriented and fluent style like `.map()` or `.flatMap()`. Since swift2 branch is still in development, the APIs might be changed in the future.
