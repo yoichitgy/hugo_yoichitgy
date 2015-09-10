@@ -1,23 +1,22 @@
 +++
 date = "2015-09-10T11:02:53+09:00"
-draft = true
 slug = "dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-5-asynchronous-image-load"
 tags = ["swinject", "dependency-injection", "mvvm", "reactivecocoa", "swift", "alamofire"]
 title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 5: Asynchronous Image Load"
 
 +++
 
-By [the previous blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-4-implementing-the-view-and-viewmodel/), we developed an example app, in MVVM architecture, displaying meta data of images received from [Pixabay](https://pixabay.com/) server. In this blog post, we are going add a feature to asynchronously load and display the images. To handle the asynchronous events, [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) will be used as we did by the previous post.
+By [the previous blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-4-implementing-the-view-and-viewmodel/), we developed an example app, in MVVM architecture, displaying meta data of images received from [Pixabay](https://pixabay.com/) server. In this blog post, we are going add a feature to asynchronously load the images. To handle the asynchronous events, [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) will be used as we did in the previous posts. Through the development, we will learn how to add a feature in MVVM architecture with unit tests and dependency injection are updated.
 
 The source code used in the blog post is available at [a repository on GitHub](https://github.com/Swinject/SwinjectMVVMExample).
 
 ## Notice
 
-In the example project, Swift 2.0 with Xcode 7 is used though they are still in beta versions. To use with Swift 2.0, a development version of ReactiveCocoa in [swift2 branch](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/swift2) is used. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but APIs in swift2 branch are in protocol oriented and fluent style like `.map()` or `.flatMap()`. Since swift2 branch is still in development, the APIs might be changed in the future.
+To use with Swift 2.0, a development version of ReactiveCocoa in [swift2 branch](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/swift2) is used. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but APIs in swift2 branch are in protocol oriented and fluent style like `.map()` or `.flatMap()`. Since swift2 branch is still in development, the APIs might be changed in the future.
 
 ## Model
 
-First, we are going to implement our Model. Add `requestImage` method to `Networking` protocol. The method takes an image URL and returns a SignalProducer instance to emit the image.
+First, we are going to add the feature to request an image to our Model. Add `requestImage` method to `Networking` protocol. The method takes an image URL and returns a SignalProducer instance to send the image.
 
 **Networking.swift**
 
@@ -29,7 +28,7 @@ First, we are going to implement our Model. Add `requestImage` method to `Networ
         func requestImage(url: String) -> SignalProducer<UIImage, NetworkError>
     }
 
-Modify `Network` class to implement `requestImage` method. In the method, the initializer of `SignalProducer` with a trailing closure is used to convert an asynchronous response of Alamofire to a `Signal` of ReactiveCocoa. If the response is successful and the response data is valid, next and completed events are sent to `observer`. Otherwise an error is sent. Because the response of Alamofire runs in the main thread by default, a serial queue is passed to Alamofire.
+Modify `Network` class to implement `requestImage` method. In the method, the initializer of `SignalProducer` with a trailing closure is used to convert an asynchronous response of Alamofire to a `Signal` of ReactiveCocoa. If the response is successful and its data are valid, `.Next` and `.Completed` events are sent to `observer`. Otherwise an `.Error` event is sent. Because the response of Alamofire runs in the main thread by default, a serial queue is passed to Alamofire.
 
 **Network.swift**
 
@@ -67,7 +66,7 @@ public final class Network: Networking {
 }
 ```
 
-Update stubs used in `ImageSearchSpec` for `requestImage` method added to `Networking` protocol. Since `requestImage` method is not used in the unit tests, an empty `SignalProducer` is returned in the each stub method.
+Update stubs used in `ImageSearchSpec` since `requestImage` method was added to `Networking` protocol. Because `requestImage` method is not used in the unit tests, each stub method just returns an empty `SignalProducer`.
 
 **ImageSearchSpec.swift**
 
@@ -105,7 +104,7 @@ Update stubs used in `ImageSearchSpec` for `requestImage` method added to `Netwo
         // Omitted
     }
 
-Add unit tests to `NetworkSpec` to check `requestImage`. As a stable server for the tests, [httpbin.org](http://httpbin.org) is used.
+Add unit tests to `NetworkSpec` to check the new `requestImage` method. As a stable server for the tests, [httpbin.org](http://httpbin.org) is used.
 
 **NetworkSpec.swift**
 
@@ -153,11 +152,13 @@ Add unit tests to `NetworkSpec` to check `requestImage`. As a stable server for 
         }
     }
 
-The first test checks that `Network` returns an image asynchronously as a successful case. The second test checks that `Network` sends `NetworkError.IncorrectDataReturned` error if non-image data are returned from the server. The third test checks that an error from Alamofire is converted to its corresponding `NetworkError` and sent by `Network`.
+The first test checks that `Network` returns an image asynchronously as a successful case. The second test checks that `Network` sends `NetworkError.IncorrectDataReturned` error if non-image data are returned from the server. The third test checks that an error from Alamofire is converted to its corresponding `NetworkError` and passed through the `Network` instance.
+
+Type `Command-U` to run the unit tests.
 
 ## ViewModel
 
-Let's move on to our ViewModel to receive the image from Model and to handle it for View. At the beginning, add `RACUtil.swift` with the following contents to `ExampleViewModel` group. Make sure that they are added to `ExampleViewModel` target when you save them.
+Let's move on to our ViewModel to receive the image from Model and to handle it for View. At the beginning, add `RACUtil.swift` with the following content to `ExampleViewModel` group. Make sure that it is added to `ExampleViewModel` target when you save them.
 
 **RACUtil.swift**
 
@@ -173,9 +174,9 @@ Let's move on to our ViewModel to receive the image from Model and to handle it 
         }
     }
 
-In the extension to `NSObject`, `rac_willDeallocSignal` is mapped to a `SignalProducer` that sends an event with an empty tuple value when an object is being deallocated. We add the extension here because Swift APIs of ReactiveCocoa still do not have an extension equivalent to `rac_willDeallocSignal` in Objective-C APIs.
+In the extension to `NSObject`, `rac_willDeallocSignal` is mapped to a `SignalProducer` that sends an event with an empty tuple when an object is being deallocated. We add the extension here because ReactiveCocoa Swift APIs still do not have an extension equivalent to `rac_willDeallocSignal` supported by Objective-C APIs. `toSignalProducer` is used to convert the Objective-C `Signal` to Swift `SignalProducer`, and `map` and `flatMapError` are used to transform the event and error types.
 
-Next, add `getPreviewImage` method to `ImageSearchTableViewCellModeling` protocol and `ImageSearchTableViewCellModel` class as followings.
+Add `getPreviewImage` method to `ImageSearchTableViewCellModeling` protocol and `ImageSearchTableViewCellModel` class as followings.
 
 **ImageSearchTableViewCellModeling.swift**
 
@@ -234,11 +235,11 @@ Next, add `getPreviewImage` method to `ImageSearchTableViewCellModeling` protoco
         }
     }
 
-`getPreviewImage` method returns a `SignalProducer` instance emitting `UIImage`. In the method, a cached image is wrapped in an `SignalProducer` instance if the cache exists. Otherwise, another `SignalProducer` that gets an image from `Networking` is returned.
+`getPreviewImage` method returns a `SignalProducer` instance sending `UIImage`. A cached image, as `previewImage` property, is wrapped in an `SignalProducer` instance if the cache exists. Otherwise, another `SignalProducer` that requests an image to `Networking` is returned.
 
-The latter `SignalProducer` consists of two parts concatenated by `concat` method. The first part is `SignalProducer(value: nil)`, which sends `nil` then completes immediately. The second part is `imageProducer`, which requests an image to `Networking`. In the second part, an error is mapped to `nil` by `flatMapError` to ignore the error because no error message should be displayed for each cell. To terminate the signal producer when the `ImageSearchTableViewCellModel` instance is deallocated, `takeUntil` method is called with `racutil_willDeallocProducer`.
+The latter `SignalProducer` consists of two parts concatenated by `concat` method. The first part is `SignalProducer(value: nil)`, which sends `nil` then completes immediately. The second part is `imageProducer`, which requests the image to `Networking`. In the second part, an error is mapped to `nil` by `flatMapError` to ignore the error because no error message should be displayed for each cell. To terminate the signal producer when the `ImageSearchTableViewCellModel` instance is deallocated, `takeUntil` method is called with `racutil_willDeallocProducer`. To use the `NSObject` extension, `ImageSearchTableViewCellModel` inherits `NSObject`.
 
-Modify `ImageSearchTableViewModel` to pass a `Networking` instance. A parameter is added to its initializer to get `Networking` instance injected, and the instance is passed to the initializer of `ImageSearchTableViewCellModel` in `startSearch` method.
+Modify `ImageSearchTableViewModel` to pass a `Networking` instance as below. A parameter is added to its initializer to get `Networking` instance injected. The instance is passed to the initializer of `ImageSearchTableViewCellModel` in `startSearch` method.
 
 **ImageSearchTableViewModel.swift**
 
@@ -276,7 +277,7 @@ public final class ImageSearchTableViewModel: ImageSearchTableViewModeling {
 }
 ```
 
-At last, add dependency injection of `Networking` to `ImageSearchTableViewModel` as shown below.
+At last, modify `AppDelegate` to add dependency injection of `Networking` to `ImageSearchTableViewModel` as shown below.
 
 **AppDelegate.swift**
 
@@ -310,7 +311,7 @@ At last, add dependency injection of `Networking` to `ImageSearchTableViewModel`
         // Omitted
     }
 
-We are going to modify and add unit tests for the modified ViewModel. First, add `StubNetwork` and pass its instance to the modified initializer of `ImageSearchTableViewModel` in `ImageSearchTableViewModelSpec`.
+Let's modify and add unit tests for the updated ViewModel. First, modify `ImageSearchTableViewModelSpec` to add `StubNetwork` and pass its instance to the modified initializer of `ImageSearchTableViewModel`.
 
 **ImageSearchTableViewModelSpec.swift**
 
@@ -374,6 +375,7 @@ Add stubs and unit tests to `ImageSearchTableViewCellModelSpec` as below.
     @testable import ExampleViewModel
 
     class ImageSearchTableViewCellModelSpec: QuickSpec {
+        // MARK: Stubs
         class StubNetwork: Networking {
             func requestJSON(url: String, parameters: [String : AnyObject]?)
                 -> SignalProducer<AnyObject, NetworkError>
@@ -398,6 +400,7 @@ Add stubs and unit tests to `ImageSearchTableViewCellModelSpec` as below.
             }
         }
 
+        // MARK: Spec
         override func spec() {
             var viewModel: ImageSearchTableViewCellModel!
             beforeEach {
@@ -476,13 +479,13 @@ Add stubs and unit tests to `ImageSearchTableViewCellModelSpec` as below.
 
 `requestImage` method of `StubNetwork` returns a `SignalProducer` sending the dummy image. That of `ErrorStubNetwork` returns a `SignalProducer` sending an error. Before adding new unit tests, refactoring is done on `spec`. The existing tests are grouped within `describe("Constant values")`.
 
-Five new unit tests for `getPreviewImage` method are added to `describe("Preview image")` group. The first test checks the `SignalProducer` sends `nil` as its first event. The second test checks it sends an image as the following event. The third test checks the image event is sent on the main thread. The forth test checks a cached image is sent immediately in case the cache exists. The test is grouped within `context` because the test is in the certain condition. The fifth test checks that an error on `Networking` instance is converted and sent as `nil`. This test is also grouped within `context`.
+Five new unit tests for `getPreviewImage` method are added to `describe("Preview image")` group. The first test checks the `SignalProducer` sends `nil` as its first event. The second test checks it sends an image as the succeeding event. The third test checks the image event is sent on the main thread. The forth test checks a cached image is sent immediately in case the cache exists. The test is grouped within `context` because the test is in the certain condition. The fifth test checks that an error on `Networking` instance is converted and sent as `nil`. This test is also grouped within `context`.
 
-Input `Command-U` and run the unit tests. Passed. Move on to the next section to implement our View.
+Input `Command-U` and run the unit tests. Move on to the next section to implement our View.
 
 ## View
 
-First, we are going to add an extension to `UITableViewCell`. Add `RACUtil.swift` with the following contents to `ExampleView` group. Make sure that they are added to `ExampleView` target. In the same way as the extension of `racutil_willDeallocProducer` to `NSObject`, the Objective-C API `rac_prepareForReuseSignal` is mapped to a corresponding `SignalProducer` instance. It sends an event with an empty tuple when `prepareForReuse` of `UITableViewCell` is called.
+First, we are going to add an extension to `UITableViewCell` in the same way as we did to `NSObject`. Add `RACUtil.swift` with the following content to `ExampleView` group. Make sure that it is added to `ExampleView` target. In the extension, `rac_prepareForReuseSignal`, as ReactiveCocoa Objective-C API, is transformed to a corresponding Swift instance. It sends an event with an empty tuple when `prepareForReuse` of `UITableViewCell` is invoked.
 
 **RACUtil.swift**
 
@@ -498,7 +501,7 @@ First, we are going to add an extension to `UITableViewCell`. Add `RACUtil.swift
         }
     }
 
-Second, modify `ImageSearchTableViewCell` to update the image view when `viewModel` property is set. The signal of `getPreviewImage` is terminated upon reuse of the cell for another table row to avoid updating the cell with the image for the previous row.
+Second, modify `ImageSearchTableViewCell` to update the image view when `viewModel` property is set. The signal of `getPreviewImage` is terminated upon reuse of the cell for another table row to avoid updating the cell with the image used for the previous row.
 
 **ImageSearchTableViewCell.swift**
 
@@ -529,11 +532,11 @@ Second, modify `ImageSearchTableViewCell` to update the image view when `viewMod
         @IBOutlet weak var imageSizeLabel: UILabel!
     }
 
-Type `Command-R` and run the app. You will see the image views are filled like the following image.
+Type `Command-R` and run the app. You will see each image view is filled like the following image.
 
 ![SwinjectMVVMExample Images Displayed in Table View Cells](/images/post/2015-09/SwinjectMVVMExampleCellsWithImagesScreenshot.png)
 
-At last, add `ImageSearchTableViewCellSpec.swift` with the following contents to `ExampleViewTests` group. Make sure that they are added to `ExampleViewTests` target.
+At last, add `ImageSearchTableViewCellSpec.swift` with the following content to `ExampleViewTests` group. Make sure that it is added to `ExampleViewTests` target.
 
 **ImageSearchTableViewCellSpec.swift**
 
@@ -584,20 +587,22 @@ At last, add `ImageSearchTableViewCellSpec.swift` with the following contents to
 
 The test checks, with a mock of `ImageSearchTableViewCellModeling`, `getPreviewImage` is called when `viewModel` property of `ImageSearchTableViewCell` is set.
 
-Input `Command-U` to run the test. Passed! We have finished implementing the table view displaying images that are asynchronously loaded from the network. Remember we have not only the implementation but also the unit tests that give us confidence to keep developing working software!
+Input `Command-U` to run the test. Passed! We have finished implementing the table view displaying images that are asynchronously loaded from the network. Remember now we have not only the implementation but also the unit tests that give us confidence to keep developing working software!
 
 ## Conclusion
 
-In this blog post, we implemented the feature to asynchronously load an image to `UIImageView` in MVVM architecture. We learned how to add new methods to protocols and their conforming classes with the update of unit tests in Model, ViewModel and View. The dependency injection to ViewModel was also updated during the implementation. ReactiveCocoa was used throughout the Model, ViewModel and View to pass and handle events in the simplified and abstracted way. You leaned how to concatenate `SignalProducer` instances to construct a `SignalProducer` instance sending complex events.
+In this blog post, we implemented the feature to asynchronously load an image to `UIImageView` in MVVM architecture. We learned how to add new methods to protocols and their conforming classes with the update of unit tests in Model, ViewModel and View. The dependency injection to ViewModel was also updated during the implementation. ReactiveCocoa was used throughout the Model, ViewModel and View to pass and handle events in the abstracted way.
 
 Through the series of the blog posts, we learned:
 
 - Part 1: The concepts and basics of MVVM and ReactiveCocoa.
 - Part 2: The setup of Xcode project composed of MVVM framework targets with external frameworks installed via [Carthage](https://github.com/Carthage/Carthage).
 - Part 3: The model design using protocols to decouple our app from external system, e.g. network.
-- Part 4: ViewModel and View implementation and dependency injection from AppDelegate.
+- Part 4: ViewModel and View implementation with dependencies injected by AppDelegate.
 - Part 5: Modification of Model, ViewModel and View to add a new feature with unit tests updated.
 
-We did not only develop the example app but wrote unit tests that use stubs and mocks of protocols representing MVVM interfaces. Keeping the cycle to add protocols, implementations, and unit tests in MVVM architecture, we are always confident to develop the project further. Decoupling of Model, View and ViewModel by using the abstracted events of [ReactiveCocoa](https://github.com/Swinject/Swinject) and dependency injection with [Swinject](https://github.com/Swinject/Swinject) is the key to the cycle.
+We did not only develop the example app but wrote unit tests[^1] that use stubs and mocks of protocols representing MVVM interfaces. Keeping the cycle to add protocols, implementations, and unit tests in MVVM architecture, we are always confident to develop the project further. Decoupling of Model, View and ViewModel by using the abstracted events of [ReactiveCocoa](https://github.com/Swinject/Swinject) and dependency injection with [Swinject](https://github.com/Swinject/Swinject) is the key to the cycle.
 
-The series of the blog posts ends here, but [the project in the GitHub repository](https://github.com/Swinject/SwinjectMVVMExample) has further development to show image details, to receive more image data when scrolled to the bottom of the table, to handle errors and to add localization. If you are interested, check the project. Adding a star to [Swinject project](https://github.com/Swinject/Swinject) is highly appreciated. Thank you.
+The series of the blog posts ends here, but [the project in the GitHub repository](https://github.com/Swinject/SwinjectMVVMExample) has further development to show image details, to receive more image data when scrolled to the bottom of the table, to handle errors and to add localization. If you are interested, check the project. Adding a star to [Swinject project](https://github.com/Swinject/Swinject) is highly appreciated.
+
+[^1]: The blog posts always wrote unit tests after implementing features, but actually tests should be written first or together with the feature implementation.
