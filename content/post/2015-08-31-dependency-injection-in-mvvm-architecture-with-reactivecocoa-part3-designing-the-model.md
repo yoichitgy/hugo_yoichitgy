@@ -6,6 +6,8 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 3: De
 
 +++
 
+**Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
+
 In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-2-project-setup/), we setup an Xcode project to develop an app composed of Model, View and ViewModel frameworks. In this blog post, we are going to develop the Model part in the MVVM architecture. We will learn how to design our Model consisting of entities and services with dependencies injected. Decoupling of the dependencies is the advantage of the MVVM architecture. [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) is used for event handling, which is essential to decouple Model, View and ViewModel in the MVVM architecture. We will also learn how to use [Himotoki](https://github.com/ikesyo/Himotoki) to define mappings from JSON data to Swift types.
 
 The source code used in the blog post is available at [a repository on GitHub](https://github.com/Swinject/SwinjectMVVMExample).
@@ -14,11 +16,11 @@ The source code used in the blog post is available at [a repository on GitHub](h
 
 ## Notice
 
-We are going to use Swift 2.0 with Xcode 7 though they are still in beta versions. To use with Swift 2.0, a development version of ReactiveCocoa in [swift2 branch](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/swift2) will be used. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but APIs in swift2 branch are in protocol oriented and fluent style like `.map()` or `.flatMap()`. Since swift2 branch is still in development, the APIs might be changed in the future.
+To use with Swift 2 and Xcode 7, ReactiveCocoa [version 4.0](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) is used though it is still in an alpha version at the moment. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but version 4 APIs are in protocol oriented and fluent style like `.map()` or `.flatMap()`.
 
 ## Himotoki
 
-[Himotoki](https://github.com/ikesyo/Himotoki) is a type-safe JSON decoding library for Swift. It maps JSON elements to properties of a type with a simple definition of the mappings as `Decodable` protocol. The advantage of Himotoki is the support of mappings to read-only (`let`) properties.
+[Himotoki](https://github.com/ikesyo/Himotoki) is a type-safe JSON decoding library for Swift. It maps JSON elements to properties of a type with a simple definition of the mappings as `Decodable` protocol. The advantage of Himotoki is the support of mappings to immutable (`let`) properties.
 
 Its usage is simple. Assume that you want to map JSON like `{ "some_name": "Himotoki", "some_value": 1 }` to `SomeValue` type. To define the mappings, make `SomeValue` type conform `Decodable` protocol.
 
@@ -28,8 +30,8 @@ Its usage is simple. Assume that you want to map JSON like `{ "some_name": "Himo
     }
 
     extension SomeValue: Decodable {
-        static func decode(e: Extractor) -> Group? {
-            return build(SomeValue.init)(
+        static func decode(e: Extractor) throws -> Group {
+            return try build(SomeValue.init)(
                 e <| "some_name",
                 e <| "some_value"
             )
@@ -44,7 +46,7 @@ To get an instance mapped from JSON data, call `decode` function with JSON data 
         // JSON data returned from Alamofire or NSJSONSerialization.
         let json: [String: AnyObject] = ["some_name": "Himotoki", "some_value": 1]
 
-        let v: SomeValue? = decode(json)
+        let v: SomeValue? = try? decode(json)
         XCTAssert(v != nil)
         XCTAssert(v?.name == "Himotoki")
         XCTAssert(v?.value == 1)
@@ -128,7 +130,7 @@ In this section, we are going to define the entities representing an image and r
 
     // MARK: Decodable
     extension ImageEntity: Decodable {
-        public static func decode(e: Extractor) -> ImageEntity? {
+        public static func decode(e: Extractor) throws -> ImageEntity {
             let splitCSV: String -> [String] = { csv in
                 csv.characters
                     .split { $0 == "," }
@@ -138,7 +140,7 @@ In this section, we are going to define the entities representing an image and r
                     }
             }
 
-            return build(ImageEntity.init)(
+            return try build(ImageEntity.init)(
                 e <| "id",
 
                 e <| "pageURL",
@@ -156,7 +158,7 @@ In this section, we are going to define the entities representing an image and r
                 e <| "views",
                 e <| "downloads",
                 e <| "likes",
-                (e <| "tags").map(splitCSV) ?? [],
+                (try? e <| "tags").map(splitCSV) ?? [],
                 e <| "user"
             )
         }
@@ -164,7 +166,7 @@ In this section, we are going to define the entities representing an image and r
 
 Notice that `ImageEntity` is defined as a `struct` with its properties immutable. The immutability keeps the users of the entity safe[^3]. Accessibility of the type is `public` because it is referenced from `ExampleViewModel` target.
 
-Some properties of `ImageEntity` are named differently from the JSON elements to match Swift naming convention and our app. The properties `id`, `viewCount`, `downloadCount` and `likeCount` are declared as `UInt64` or `Int64` to ensure they accept large values even in 32-bit system. JSON element `tags` as a [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) format string is mapped to an array of split strings by `(e <| "tags").map(splitCSV)`. By applying `?? []` to the returned value, an empty array is used if the `tags` is nil.
+Some properties of `ImageEntity` are named differently from the JSON elements to match Swift naming convention and our app. The properties `id`, `viewCount`, `downloadCount` and `likeCount` are declared as `UInt64` or `Int64` to ensure they accept large values even in 32-bit system. JSON element `tags` as a [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) format string is mapped to an array of split strings by `(try? e <| "tags").map(splitCSV)`. By applying `?? []` to the returned value, an empty array is assigned instead of `nil` if the `tags` JSON element is missing.
 
 Add `ResponseEntity.swift` to `ExampleModel` target with the following text contents. Here `<||` operator is used to map an array. The `total` element in the JSON is ignored. If we find it is necessary, we can add it later.
 
@@ -179,8 +181,8 @@ Add `ResponseEntity.swift` to `ExampleModel` target with the following text cont
 
     // MARK: Decodable
     extension ResponseEntity: Decodable {
-        public static func decode(e: Extractor) -> ResponseEntity? {
-            return build(ResponseEntity.init)(
+        public static func decode(e: Extractor) throws -> ResponseEntity {
+            return try build(ResponseEntity.init)(
                 e <| "totalHits",
                 e <|| "hits"
             )
@@ -219,7 +221,7 @@ To test `ImageEntity`, add `Dummy.swift` and `ImageEntitySpec.swift` with the fo
     class ImageEntitySpec: QuickSpec {
         override func spec() {
             it("parses JSON data to create a new instance.") {
-                let image: ImageEntity? = decode(imageJSON)
+                let image: ImageEntity? = try? decode(imageJSON)
 
                 expect(image).notTo(beNil())
                 expect(image?.id) == 12345
@@ -241,16 +243,16 @@ To test `ImageEntity`, add `Dummy.swift` and `ImageEntitySpec.swift` with the fo
             it("gets an empty array if tags element is nil.") {
                 var missingJSON = imageJSON
                 missingJSON["tags"] = nil
-                let image: ImageEntity? = decode(missingJSON)
+                let image: ImageEntity? = try? decode(missingJSON)
 
                 expect(image).notTo(beNil())
                 expect(image?.tags.isEmpty).to(beTrue())
             }
-            it("gets nil if any of JSON elements except tags is missing.") {
+            it("throws an error if any of JSON elements except tags is missing.") {
                 for key in imageJSON.keys where key != "tags" {
                     var missingJSON = imageJSON
                     missingJSON[key] = nil
-                    let image: ImageEntity? = decode(missingJSON)
+                    let image: ImageEntity? = try? decode(missingJSON)
 
                     expect(image).to(beNil())
                 }
@@ -258,7 +260,7 @@ To test `ImageEntity`, add `Dummy.swift` and `ImageEntitySpec.swift` with the fo
             it("ignores an extra JOSN element.") {
                 var extraJSON = imageJSON
                 extraJSON["extraKey"] = "extra element"
-                let image: ImageEntity? = decode(extraJSON)
+                let image: ImageEntity? = try? decode(extraJSON)
 
                 expect(image).notTo(beNil())
             }
@@ -271,7 +273,7 @@ In `Dummy.swift`, a dummy instance of JSON data is defined as `imageJSON`. Since
 
 `it("gets an empty array if tags element is nil.")` checks that `tags` property is set to an empty array if `tags` element is missing in the JSON data.
 
-`it("gets nil if any of JSON elements except tags is missing.")` checks that `decode` function returns `nil` if any of the JSON elements except `tags` is missing. Incorrect or broken JSON data can be detected to see whether the returned value is `nil`.
+`it("throws an error if any of JSON elements except tags is missing.")` checks that `decode` function throws an error if any of the JSON elements except `tags` is missing. Incorrect or broken JSON data can be detected to see whether the returned value from `try?` is `nil`.
 
 `it("ignores an extra JOSN element.")` checks that `decode` function returns an `ImageEntity` instance even if an extra JSON element exists. Ignoring extra elements, our JSON mapping is stable for future changes on the Pixabay API.
 
@@ -292,7 +294,7 @@ Next add `ResponseEntitySpec.swift` with the following content to `ExampleModelT
             ]
 
             it("parses JSON data to create a new instance.") {
-                let response: ResponseEntity? = decode(json)
+                let response: ResponseEntity? = try? decode(json)
 
                 expect(response).notTo(beNil())
                 expect(response?.totalCount) == 123
@@ -560,7 +562,7 @@ Third, add `ImageSearch.swift` with the following content to `ExampleModel` targ
             let parameters = Pixabay.requestParameters
             return network.requestJSON(url, parameters: parameters)
                 .attemptMap { json in
-                    if let response = decode(json) as ResponseEntity? {
+                    if let response = (try? decode(json)) as ResponseEntity? {
                         return Result(value: response)
                     }
                     else {
@@ -572,9 +574,9 @@ Third, add `ImageSearch.swift` with the following content to `ExampleModel` targ
 
 `ImageSearch` has dependency on `Networking` injected through the initializer as [initializer injection pattern](https://github.com/Swinject/Swinject/blob/master/Documentation/InjectionPatterns.md).
 
-`searchImages` method converts `SignalProducer<AnyObject, NetworkError>` returned from `network.requestJSON` to `SignalProducer<ResponseEntity, NetworkError>`. To convert the `SignalProducer`, `attemptMap` is used. The closure passed to `attemptMap` calls `decode` to map the JSON data to a `ResponseEntity` instance. If the mapping succeeds, the mapped response is returned as `Result(value: response)`. Otherwise, an error is returned as `Result(error: .IncorrectDataReturned)`. If you convert a value not to an error but to another value only, you can just use `map` method on `SignalProducer`.
+`searchImages` method converts `SignalProducer<AnyObject, NetworkError>` returned from `network.requestJSON` to `SignalProducer<ResponseEntity, NetworkError>`. To convert the `SignalProducer`, `attemptMap` is used. The closure passed to `attemptMap` calls `decode` to map the JSON data to a `ResponseEntity` instance. If the mapping succeeds, the mapped response is returned as `Result(value: response)`. Otherwise[^5], an error is returned as `Result(error: .IncorrectDataReturned)`. If you convert a value not to an error but to another value only, you can just use `map` method on `SignalProducer`.
 
-The cast of `decode(json) as ResponseEntity?` looks irregular, but it helps Swift compiler infer that `decode` function on `ResponseEntity` type should be used. If the cast is `decode(json) as? ResponseEntity`, the source code cannot be compiled.
+The cast of `(try? decode(json)) as ResponseEntity?` looks irregular, but it helps Swift compiler infer that `decode` function on `ResponseEntity` type should be used. If the cast is `(try? decode(json)) as? ResponseEntity`, the source code cannot be compiled.
 
 Let's write unit tests. Add `ImageSearchSpec.swift` with the following content to `ExampleModelTests` target.
 
@@ -682,3 +684,4 @@ If you have questions, suggestions or problems, feel free to leave comments.
 [^2]: In [DDD (Domain-Driven Design)](https://en.wikipedia.org/wiki/Domain-driven_design), an entity is a concept of a domain model and is defined by its identity. In our project, the term is used to mean just a concept or object regardless of its identity.
 [^3]: Refer to [this page](http://programmers.stackexchange.com/questions/151733/if-immutable-objects-are-good-why-do-people-keep-creating-mutable-objects) to know more about immutability and mutability.
 [^4]: "[How to Implement the ErrorType Protocol](https://realm.io/news/testing-swift-error-type/)" is worth reading about `ErrorType`.
+[^5]: `try?` is used just to simplify this blog post. `do-try-catch` should be used to handle an error to get informative.
