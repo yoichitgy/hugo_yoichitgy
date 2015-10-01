@@ -6,6 +6,8 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 2: Pr
 
 +++
 
+**Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
+
 In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-1-introduction/), the basic concepts of MVVM (Model-View-ViewModel) and [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) were introduced. From this blog post, we are going to develop an example app to demonstrate dependency injection with [Swinject](https://github.com/Swinject/Swinject) in MVVM architecture. We will use ReactiveCococa to handle events passed between MVVM components. In this blog post, you will learn how to setup an Xcode project composing Molel, View and ViewModel as  frameworks.
 
 The example app asynchronously searches, downloads and displays images obtained from [Pixabay](https://pixabay.com) via [its API](https://pixabay.com/api/docs/), as shown in the GIF animation below. The source code used in the blog posts is available at [a repository on GitHub](https://github.com/Swinject/SwinjectMVVMExample).
@@ -15,16 +17,13 @@ The example app asynchronously searches, downloads and displays images obtained 
 ## Requirements
 
 - Swift 2.0
-- Xcode 7 beta 6
-- [Carthage](https://github.com/Carthage/Carthage) 0.8 or later
+- Xcode 7
+- [Carthage](https://github.com/Carthage/Carthage) 0.9.2 or later
 - [Pixabay](https://pixabay.com/api/docs/) API username and key
 
-We are going to use Swift 2.0 with Xcode 7 though they are still in beta versions. To use with Swift 2, a development version of ReactiveCocoa in [swift2 branch](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/swift2) will be used. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but APIs in swift2 branch are in protocol oriented and fluent style like `.map()` or `.flatMap()`. Since swift2 branch is still in development, the APIs might be changed in the future.
+To use with Swift 2 and Xcode 7, ReactiveCocoa [version 4.0](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) is used though it is still in an alpha version at the moment. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but version 4 APIs are in protocol oriented and fluent style like `.map()` or `.flatMap()`.
 
-Carthage can be installed by [its installer (Carthage.pkg)](https://github.com/Carthage/Carthage/releases), or [Homebrew](http://brew.sh/) with the following commands.
-
-    brew update
-    brew install carthage
+Carthage can be installed by [its installer (Carthage.pkg)](https://github.com/Carthage/Carthage/releases). If you are new to Carthage, check [this tutorial page](http://www.raywenderlich.com/109330/carthage-tutorial-getting-started).
 
 You can get a free API username and key at [Pixabay](https://pixabay.com/). First, sign up and log in there. Then, access its [API documentation page](https://pixabay.com/api/docs/). Your API username and key will be displayed in "Request parameters" section.
 
@@ -92,17 +91,17 @@ Okay, we have finished setting up the project. Run the app (`Command-R`), then  
 
 We are going to install [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa), [Himotoki](https://github.com/ikesyo/Himotoki), [Alamofire](https://github.com/Alamofire/Alamofire), [Swinject](https://github.com/Swinject/Swinject), [Quick](https://github.com/Quick/Quick) and [Nimble](https://github.com/Quick/Nimble). We used Alamofire, Quick and Nimble in [the previous example project](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/). This time, we are going to use Himotoki, which is a type-safe JSON decoding library, in place of [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON). The details of Himotoki will be mentioned in the next blog post when we use it.
 
-To install them with [Carthage](https://github.com/Carthage/Carthage), add a text file named `Cartfile` with the following contents. Notice that specific commit versions of some frameworks are specified because they are still in development to support Swift 2 and Xcode 7 (beta).
+To install them with [Carthage](https://github.com/Carthage/Carthage), add a text file named `Cartfile` with the following contents.
 
 **Cartfile**
 
-    github "ReactiveCocoa/ReactiveCocoa" "be3d9f5a2ba0fd902c13373e320a4b86f214c1d3"
-    github "ikesyo/Himotoki" "a40a9df31ffa2e81daf872e9637170e3708e5478"
+    github "ReactiveCocoa/ReactiveCocoa" "v4.0-alpha.1"
+    github "ikesyo/Himotoki" ~> 1.0.0
     github "Alamofire/Alamofire" ~> 2.0.0
     github "Swinject/Swinject" ~> 0.2.1
 
-    github "Quick/Quick" "1fbcd8a05f6e896e2db66a2e82527b7f24766ef8"
-    github "Quick/Nimble" "e3e3978ef610927d70eafd333e162855ad7b6f77"
+    github "Quick/Quick" == 0.6.0
+    github "Quick/Nimble" "v2.0.0-rc.3"
 
 Run `carthage update --no-use-binaries` in Terminal[^2]. Wait for a couple of minutes (or more) until Carthage finishes building the frameworks[^3]. If you use [Git](https://git-scm.com), [here is a `.gitignore` for Swift](https://github.com/github/gitignore/blob/master/Swift.gitignore) excluding frameworks built by Carthage.
 
@@ -156,7 +155,7 @@ We found that the architecture of the app composed of Model, View and ViewModel 
 
 If you have questions, suggestions or problems, feel free to leave comments.
 
-[^1]: UI tests are excluded because still Xcode 7 is beta. This blog post will be updated to include them after Xcode 7 is officially released.
-[^2]: `--no-use-binaries` option is supplied to `carthage update` command to avoid downloading zipped frameworks built with an older beta version of Xcode. If you install official release versions of the frameworks for an official release version of Xcode, you can just run `carthage update`.
+[^1]: UI tests are excluded because they are out of scope of this blog post.
+[^2]: `--no-use-binaries` option is supplied to `carthage update` command to avoid downloading zipped frameworks built with an older version of Xcode. If your Xcode version matches those building the zipped frameworks, you can just run `carthage update`.
 [^3]: If you get an error on `carthage update --no-use-binaries` command, run it again with `--verbose` option too to investigate the problem.
 [^4]: `Result.framework` is used by ReactiveCocoa.

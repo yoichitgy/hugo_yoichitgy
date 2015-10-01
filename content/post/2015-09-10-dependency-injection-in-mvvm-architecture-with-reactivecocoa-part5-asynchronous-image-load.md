@@ -6,13 +6,15 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 5: As
 
 +++
 
+**Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
+
 By [the previous blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-4-implementing-the-view-and-viewmodel/), we developed an example app, in MVVM architecture, displaying meta data of images received from [Pixabay](https://pixabay.com/) server. In this blog post, we are going add a feature to asynchronously load the images. To handle the asynchronous events, [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) will be used as we did in the previous posts. Through the development, we will learn how to add a feature in MVVM architecture with unit tests and dependency injection are updated.
 
 The source code used in the blog post is available at [a repository on GitHub](https://github.com/Swinject/SwinjectMVVMExample).
 
 ## Notice
 
-To use with Swift 2.0, a development version of ReactiveCocoa in [swift2 branch](https://github.com/ReactiveCocoa/ReactiveCocoa/tree/swift2) is used. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but APIs in swift2 branch are in protocol oriented and fluent style like `.map()` or `.flatMap()`. Since swift2 branch is still in development, the APIs might be changed in the future.
+To use with Swift 2 and Xcode 7, ReactiveCocoa [version 4.0](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) is used though it is still in an alpha version at the moment. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but version 4 APIs are in protocol oriented and fluent style like `.map()` or `.flatMap()`.
 
 ## Model
 
