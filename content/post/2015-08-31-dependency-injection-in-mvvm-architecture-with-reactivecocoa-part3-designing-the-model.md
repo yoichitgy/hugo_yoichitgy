@@ -10,7 +10,10 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 3: De
 
 In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-2-project-setup/), we setup an Xcode project to develop an app composed of Model, View and ViewModel frameworks. In this blog post, we are going to develop the Model part in the MVVM architecture. We will learn how to design our Model consisting of entities and services with dependencies injected. Decoupling of the dependencies is the advantage of the MVVM architecture. [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) is used for event handling, which is essential to decouple Model, View and ViewModel in the MVVM architecture. We will also learn how to use [Himotoki](https://github.com/ikesyo/Himotoki) to define mappings from JSON data to Swift types.
 
-The source code used in the blog post is available at [a repository on GitHub](https://github.com/Swinject/SwinjectMVVMExample).
+The source code used in the blog posts is available at:
+
+- [SwinjectMVVMExample](https://github.com/Swinject/SwinjectMVVMExample): Complete version of the project.
+- [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts.
 
 ![SwinjectMVVMExample ScreenRecord](/images/post/2015-08/SwinjectMVVMExampleScreenRecord.gif)
 

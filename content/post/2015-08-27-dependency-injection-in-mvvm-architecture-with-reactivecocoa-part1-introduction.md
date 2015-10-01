@@ -20,7 +20,10 @@ The example app we are going to develop asynchronously searches, downloads and d
 
 ![SwinjectMVVMExample ScreenRecord](/images/post/2015-08/SwinjectMVVMExampleScreenRecord.gif)
 
-The source code used in the blog posts is available at [a repository on GitHub](https://github.com/Swinject/SwinjectMVVMExample).
+The source code used in the blog posts is available at:
+
+- [SwinjectMVVMExample](https://github.com/Swinject/SwinjectMVVMExample): Complete version of the project.
+- [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts.
 
 ## MVVM
 

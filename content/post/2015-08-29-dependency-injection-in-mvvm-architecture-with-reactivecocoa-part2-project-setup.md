@@ -10,7 +10,10 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 2: Pr
 
 In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-1-introduction/), the basic concepts of MVVM (Model-View-ViewModel) and [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) were introduced. From this blog post, we are going to develop an example app to demonstrate dependency injection with [Swinject](https://github.com/Swinject/Swinject) in MVVM architecture. We will use ReactiveCococa to handle events passed between MVVM components. In this blog post, you will learn how to setup an Xcode project composing Molel, View and ViewModel as  frameworks.
 
-The example app asynchronously searches, downloads and displays images obtained from [Pixabay](https://pixabay.com) via [its API](https://pixabay.com/api/docs/), as shown in the GIF animation below. The source code used in the blog posts is available at [a repository on GitHub](https://github.com/Swinject/SwinjectMVVMExample).
+The example app asynchronously searches, downloads and displays images obtained from [Pixabay](https://pixabay.com) via [its API](https://pixabay.com/api/docs/), as shown in the GIF animation below. The source code used in the blog posts is available at:
+
+- [SwinjectMVVMExample](https://github.com/Swinject/SwinjectMVVMExample): Complete version of the project.
+- [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts.
 
 ![SwinjectMVVMExample ScreenRecord](/images/post/2015-08/SwinjectMVVMExampleScreenRecord.gif)
 

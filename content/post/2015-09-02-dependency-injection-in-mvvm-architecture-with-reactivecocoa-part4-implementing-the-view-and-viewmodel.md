@@ -10,7 +10,10 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 4: Im
 
 In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-3-designing-the-model/), we developed the Model part of the example app. In this blog post, we will move on to the View and ViewModel parts. First, empty implementation of View and ViewModel will be added to the project to get working software. Then actual implementation will be added with unit tests. During the development, we will learn how to use `PropertyOf` and `MutableProperty` types, which are observable properties provided by [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa/).
 
-The source code used in the blog post is available at [a repository on GitHub](https://github.com/Swinject/SwinjectMVVMExample).
+The source code used in the blog posts is available at:
+
+- [SwinjectMVVMExample](https://github.com/Swinject/SwinjectMVVMExample): Complete version of the project.
+- [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts.
 
 ## Notice
 
