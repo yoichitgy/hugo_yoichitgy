@@ -2,9 +2,11 @@
 date = "2015-08-13T09:16:58+09:00"
 slug = "dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1"
 tags = ["swinject", "dependency-injection", "swift", "alamofire"]
-title = "Dependency Injection Framework for Swift - Simple Weather App Example with Swinject Part 1/2"
+title = "Dependency Injection Framework for Swift - Simple Weather App Example with Swinject Part 1"
 
 +++
+
+**Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
 
 In [the last blog post](/post/dependency-injection-framework-for-swift-introduction-to-swinject/), we walked through the concept of dependency injection and basic usage of [Swinject](https://github.com/Swinject/Swinject), the dependency injection framework for Swift. In this blog post, we are going to develop the simple weather app that you saw its screenshot in the last blog post. During the simple but essential steps of the development, you will see how to get rid of tightly coupled dependencies by using the dependency injection pattern and Swinject.
 
@@ -14,13 +16,11 @@ The source code used in this blog post is available at [a repository on GitHub](
 
 ## Requirements
 
-- Xcode 7 (beta)
+- Xcode 7
 - OpenWeatherMap API key
 - CocoaPods 0.38 or later
 
-We are going to use Xcode 7 although it is still beta. It is beta 6 at the timing of writing this blog post. Xcode 7 supports `@testable import` to access `internal` types, functions or properties in unit test targets.
-
-Also, we will use [OpenWeatherMap](http://openweathermap.org) for a free API to get weather information. [Sign up](http://home.openweathermap.org/users/sign_up) and get a free API key.
+We will use [OpenWeatherMap](http://openweathermap.org) for a free API to get weather information. [Sign up](http://home.openweathermap.org/users/sign_up) and get a free API key.
 
 To install Swinject and some frameworks, we will use [CocoaPods](https://cocoapods.org).
 
@@ -28,18 +28,18 @@ To install Swinject and some frameworks, we will use [CocoaPods](https://cocoapo
 
 Let's start with a new Xcode project. Select `File > New > Project...` menu and `iOS > Application > Single View Application` item. Set  its product name to `SwinjectSimpleExample`, language to Swift and devices to iPhone. Check `Include Unit Tests` only[^1], then save it anywhere in your local storage.
 
-Then, we are going to install [Alamofire](https://github.com/Alamofire/Alamofire), [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON), [Swinject](https://github.com/Swinject/Swinject), [Quick](https://github.com/Quick/Quick) and [Nimble](https://github.com/Quick/Nimble) with [CocoaPods](https://cocoapods.org). Create `Podfile` with the following text content in the project root directory. Then run `pod install` command to install them. Since Xcode 7 is still beta, specific commits of Alamofire and SwiftyJSON are specified[^2].
+Then, we are going to install [Alamofire](https://github.com/Alamofire/Alamofire), [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON), [Swinject](https://github.com/Swinject/Swinject), [Quick](https://github.com/Quick/Quick) and [Nimble](https://github.com/Quick/Nimble) with [CocoaPods](https://cocoapods.org). Create `Podfile` with the following text content in the project root directory. Then run `pod install` command to install them.
 
     source 'https://github.com/CocoaPods/Specs.git'
     platform :ios, '8.0'
     use_frameworks!
 
-    pod 'Alamofire', :git => 'https://github.com/Alamofire/Alamofire.git', :commit => '1b7b1f1aa'
-    pod 'SwiftyJSON', :git => 'https://github.com/SwiftyJSON/SwiftyJSON.git', :commit => '45ca854ce'
-    pod 'Swinject', '~> 0.2'
+    pod 'Alamofire', '~> 2.0.2'
+    pod 'SwiftyJSON', '~> 2.3.0'
+    pod 'Swinject', '~> 0.2.2'
 
     target 'SwinjectSimpleExampleTests' do
-        pod 'Quick', '~> 0.5.0'
+        pod 'Quick', '0.6.0'
         pod 'Nimble', '2.0.0-rc.2'
     end
 
@@ -308,7 +308,6 @@ Okay. We are ready to run the tests. Type `Command-U` to run. This time you got 
 
 The problem of dependencies to write unit tests has been explained and fixed with dependency injection in the scenario to develop the app using the network service and JSON parser. By decoupling these two parts, the unit tests have become reproducible under any circumstances. In [the next blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-2/), we will develop the UI part of the example app to learn how to use Swinject in a product app.
 
-[^1]: UI tests are excluded because still Xcode 7 is beta (just caring NDA). This blog post will be updated to include them after Xcode 7 is officially released.
-[^2]: `Podfile` in this blog post will be updated after Xcode 7 is officially released.
+[^1]: UI tests are excluded because they are out of scope of this blog post.
 [^3]: Actually this setting is not preferable if you develop an app to release. In this blog post, I used the setting just because the free API only supports HTTP.
 [^4]: This test may fail if the network is disconnected or has a problem, but these cases can be practically ignored in our unit tests.

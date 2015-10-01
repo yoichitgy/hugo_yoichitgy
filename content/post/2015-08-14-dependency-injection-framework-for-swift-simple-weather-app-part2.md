@@ -3,7 +3,7 @@ date = "2015-08-14T17:14:24+09:00"
 draft = false
 slug = "dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-2"
 tags = ["swinject", "dependency-injection", "swift"]
-title = "Dependency Injection Framework for Swift - Simple Weather App Example with Swinject Part 2/2"
+title = "Dependency Injection Framework for Swift - Simple Weather App Example with Swinject Part 2"
 
 +++
 
