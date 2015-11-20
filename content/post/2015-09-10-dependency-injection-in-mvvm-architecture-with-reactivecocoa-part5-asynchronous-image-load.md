@@ -6,7 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 5: As
 
 +++
 
-- **Updated on Nov 20, 2015** to migrate ReactiveCocoa to v4.0.0 alpha 3 and Alamofire to v3.x.
+- **Updated on Nov 20, 2015** to migrate to ReactiveCocoa v4.0.0 alpha 3 and Alamofire v3.x.
 - **Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
 
 By [the previous blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-4-implementing-the-view-and-viewmodel/), we developed an example app, in MVVM architecture, displaying meta data of images received from [Pixabay](https://pixabay.com/) server. In this blog post, we are going add a feature to asynchronously load the images. To handle the asynchronous events, [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) will be used as we did in the previous posts. Through the development, we will learn how to add a feature in MVVM architecture with unit tests and dependency injection are updated.

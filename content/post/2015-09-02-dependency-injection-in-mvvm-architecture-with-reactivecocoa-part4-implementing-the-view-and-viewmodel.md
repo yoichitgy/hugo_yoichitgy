@@ -6,7 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 4: Im
 
 +++
 
-- **Updated on Nov 20, 2015** to migrate ReactiveCocoa to v4.0.0 alpha 3 and Alamofire to v3.x.
+- **Updated on Nov 20, 2015** to migrate to ReactiveCocoa v4.0.0 alpha 3 and Alamofire v3.x.
 - **Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
 
 In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-3-designing-the-model/), we developed the Model part of the example app. In this blog post, we will move on to the View and ViewModel parts. First, empty implementation of View and ViewModel will be added to the project to get working software. Then actual implementation will be added with unit tests. During the development, we will learn how to use `AnyProperty` and `MutableProperty` types, which are observable properties provided by [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa/).
