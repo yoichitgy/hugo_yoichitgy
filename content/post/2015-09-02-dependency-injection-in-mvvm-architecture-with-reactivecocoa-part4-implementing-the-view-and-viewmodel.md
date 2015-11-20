@@ -6,14 +6,15 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 4: Im
 
 +++
 
+**Updated on Nov 20, 2015** to migrate ReactiveCocoa to v4.0.0 alpha 3 and Alamofire to v3.x.
 **Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
 
-In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-3-designing-the-model/), we developed the Model part of the example app. In this blog post, we will move on to the View and ViewModel parts. First, empty implementation of View and ViewModel will be added to the project to get working software. Then actual implementation will be added with unit tests. During the development, we will learn how to use `PropertyOf` and `MutableProperty` types, which are observable properties provided by [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa/).
+In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-3-designing-the-model/), we developed the Model part of the example app. In this blog post, we will move on to the View and ViewModel parts. First, empty implementation of View and ViewModel will be added to the project to get working software. Then actual implementation will be added with unit tests. During the development, we will learn how to use `AnyProperty` and `MutableProperty` types, which are observable properties provided by [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa/).
 
 The source code used in the blog posts is available at:
 
 - [SwinjectMVVMExample](https://github.com/Swinject/SwinjectMVVMExample): Complete version of the project.
-- [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts.
+- [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts (except updates of Xcode and frameworks).
 
 ## Notice
 
@@ -152,7 +153,7 @@ Add the dependencies on the view models to `ImageSearchTableViewController` and 
 
 ### Applying Dependency Injection
 
-To apply dependency injection in `AppDelegate`, add `container` property registering the dependencies as below. The `container` is passed to the factory method of `SwinjectStoryboard`.
+To apply dependency injection in `AppDelegate`, add `container` property registering the dependencies as below. Here a convenience initializer of `Container` taking a closure to configure the instantiated `container` is used. The `container` is passed to the factory method of `SwinjectStoryboard`.
 
 **AppDelegate.swift**
 
@@ -165,9 +166,7 @@ To apply dependency injection in `AppDelegate`, add `container` property registe
     @UIApplicationMain
     class AppDelegate: UIResponder, UIApplicationDelegate {
         var window: UIWindow?
-        var container: Container {
-            let container = Container()
-
+        let container = Container() { container in
             // Models
             container.register(Networking.self) { _ in Network() }
             container.register(ImageSearching.self) { r in
@@ -184,8 +183,6 @@ To apply dependency injection in `AppDelegate`, add `container` property registe
                 r, c in
                 c.viewModel = r.resolve(ImageSearchTableViewModeling.self)!
             }
-
-            return container
         }
 
         func application(
@@ -269,11 +266,11 @@ First, let's implement the table data source. In MVVM architecture, the data sou
     import ReactiveCocoa
 
     public protocol ImageSearchTableViewModeling {
-        var cellModels: PropertyOf<[ImageSearchTableViewCellModeling]> { get }
+        var cellModels: AnyProperty<[ImageSearchTableViewCellModeling]> { get }
         func startSearch()
     }
 
-`cellModels` property is defined as [`PropertyOf` type](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/Swift/Property.swift) to make it observable. The type provides `producer` property as `SignalProducer` type to add observers.
+`cellModels` property is defined as [`AnyProperty` type](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/Swift/Property.swift) to make it observable. The type provides `producer` property as `SignalProducer` type to add observers.
 
 Modify `ImageSearchTableViewModel` to implement the property and method.
 
@@ -284,8 +281,8 @@ Modify `ImageSearchTableViewModel` to implement the property and method.
     import ExampleModel
 
     public final class ImageSearchTableViewModel: ImageSearchTableViewModeling {
-        public var cellModels: PropertyOf<[ImageSearchTableViewCellModeling]> {
-            return PropertyOf(_cellModels)
+        public var cellModels: AnyProperty<[ImageSearchTableViewCellModeling]> {
+            return AnyProperty(_cellModels)
         }
         private let _cellModels = MutableProperty<[ImageSearchTableViewCellModeling]>([])
         private let imageSearch: ImageSearching
@@ -311,7 +308,7 @@ Modify `ImageSearchTableViewModel` to implement the property and method.
     }
 ```
 
-`cellModels` property wraps `_cellModels` property as [`MutableProperty` type](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/Documentation/FrameworkOverview.md#properties). Because the type is not only observable but also modifiable, `_cellModels` is `private` and is wrapped by `PropertyOf` type to provide a read-only property.
+`cellModels` property wraps `_cellModels` property as [`MutableProperty` type](https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/Documentation/FrameworkOverview.md#properties). Because the type is not only observable but also modifiable, `_cellModels` is `private` and is wrapped by `AnyProperty` type to provide a read-only property.
 
 `startSearch` method starts the `SignalProducer` returned by `imageSearch.searchImages`. As a side effect on the `next` event, it sets the value of `_cellModels` to an array of `ImageSearchTableViewCellModeling` instances that is mapped from `response` from `imageSearch`. Notice that the side effect is configured to run in the main thread by `.observeOn(UIScheduler())`. ViewModel should ensure that events from ViewModel to View are performed in the main thread.
 
@@ -583,7 +580,7 @@ To make sure `startSearch` on the view model is called only once when the view a
     class ImageSearchTableViewControllerSpec: QuickSpec {
         // MARK: Mock
         class MockViewModel: ImageSearchTableViewModeling {
-            let cellModels = PropertyOf(
+            let cellModels = AnyProperty(
                 MutableProperty<[ImageSearchTableViewCellModeling]>([]))
             var startSearchCallCount = 0
 
@@ -617,7 +614,7 @@ Type `Command-U` and run the test. Passed!
 
 ## Conclusion
 
-We implemented the View and ViewModel parts of the example app. First, the empty implementation of View and ViewModel was added to the project to get working software as the agile practices promote. Then the actual implementation was added. It was demonstrated that the dependencies of Model, View and ViewModel were injected by the application. By adding `container` as a property of `AppDelegate`, the dependency injection was tested. We learned property types of ReactiveCocoa. `MutableProperty` was used as an observable property with its value modifiable. `PropertyOf` was used to provide a read-only view to `MutableProperty`. In the next blog post, we will implement asynchronous image load feature.
+We implemented the View and ViewModel parts of the example app. First, the empty implementation of View and ViewModel was added to the project to get working software as the agile practices promote. Then the actual implementation was added. It was demonstrated that the dependencies of Model, View and ViewModel were injected by the application. By adding `container` as a property of `AppDelegate`, the dependency injection was tested. We learned property types of ReactiveCocoa. `MutableProperty` was used as an observable property with its value modifiable. `AnyProperty` was used to provide a read-only view to `MutableProperty`. In the next blog post, we will implement asynchronous image load feature.
 
 If you have questions, suggestions or problems, feel free to leave comments.
 
