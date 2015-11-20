@@ -6,6 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 2: Pr
 
 +++
 
+**Updated on Nov 20, 2015** to migrate ReactiveCocoa to v4.0.0 alpha 3, Alamofire to v3.x and Himotoki to v1.3.
 **Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
 
 In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-1-introduction/), the basic concepts of MVVM (Model-View-ViewModel) and [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) were introduced. From this blog post, we are going to develop an example app to demonstrate dependency injection with [Swinject](https://github.com/Swinject/Swinject) in MVVM architecture. We will use ReactiveCococa to handle events passed between MVVM components. In this blog post, you will learn how to setup an Xcode project composing Molel, View and ViewModel as  frameworks.
@@ -13,18 +14,18 @@ In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-rea
 The example app asynchronously searches, downloads and displays images obtained from [Pixabay](https://pixabay.com) via [its API](https://pixabay.com/api/docs/), as shown in the GIF animation below. The source code used in the blog posts is available at:
 
 - [SwinjectMVVMExample](https://github.com/Swinject/SwinjectMVVMExample): Complete version of the project.
-- [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts.
+- [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts (except updates of Xcode and frameworks).
 
 ![SwinjectMVVMExample ScreenRecord](/images/post/2015-08/SwinjectMVVMExampleScreenRecord.gif)
 
 ## Requirements
 
-- Swift 2.0
-- Xcode 7
-- [Carthage](https://github.com/Carthage/Carthage) 0.9.2 or later
+- Swift 2.1
+- Xcode 7.1
+- [Carthage](https://github.com/Carthage/Carthage) 0.10.0 or later
 - [Pixabay](https://pixabay.com/api/docs/) API username and key
 
-To use with Swift 2 and Xcode 7, ReactiveCocoa [version 4.0](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) is used though it is still in an alpha version at the moment. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but version 4 APIs are in protocol oriented and fluent style like `.map()` or `.flatMap()`.
+To use with Swift 2.1 and Xcode 7.1, ReactiveCocoa [version 4.0](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) is used though it is still in an alpha version at the moment. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but version 4 APIs are in protocol oriented and fluent style like `.map()` or `.flatMap()`.
 
 Carthage can be installed by [its installer (Carthage.pkg)](https://github.com/Carthage/Carthage/releases). If you are new to Carthage, check [this tutorial page](http://www.raywenderlich.com/109330/carthage-tutorial-getting-started).
 
@@ -98,13 +99,13 @@ To install them with [Carthage](https://github.com/Carthage/Carthage), add a tex
 
 **Cartfile**
 
-    github "ReactiveCocoa/ReactiveCocoa" "v4.0-alpha.1"
-    github "ikesyo/Himotoki" ~> 1.0.0
-    github "Alamofire/Alamofire" ~> 2.0.0
-    github "Swinject/Swinject" ~> 0.2.1
+    github "ReactiveCocoa/ReactiveCocoa" "v4.0.0-alpha.3"
+    github "ikesyo/Himotoki" ~> 1.3.0
+    github "Alamofire/Alamofire" ~> 3.1.2
+    github "Swinject/Swinject" == 0.5.0
 
-    github "Quick/Quick" == 0.6.0
-    github "Quick/Nimble" "v2.0.0-rc.3"
+    github "Quick/Quick" == 0.8.0
+    github "Quick/Nimble" == 3.0.0
 
 Run `carthage update --no-use-binaries` in Terminal[^2]. Wait for a couple of minutes (or more) until Carthage finishes building the frameworks[^3]. If you use [Git](https://git-scm.com), [here is a `.gitignore` for Swift](https://github.com/github/gitignore/blob/master/Swift.gitignore) excluding frameworks built by Carthage.
 

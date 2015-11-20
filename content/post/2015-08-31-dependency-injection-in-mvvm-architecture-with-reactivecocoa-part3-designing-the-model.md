@@ -6,6 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 3: De
 
 +++
 
+**Updated on Nov 20, 2015** to migrate ReactiveCocoa to v4.0.0 alpha 3, Alamofire to v3.x and Himotoki to v1.3.
 **Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
 
 In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-2-project-setup/), we setup an Xcode project to develop an app composed of Model, View and ViewModel frameworks. In this blog post, we are going to develop the Model part in the MVVM architecture. We will learn how to design our Model consisting of entities and services with dependencies injected. Decoupling of the dependencies is the advantage of the MVVM architecture. [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) is used for event handling, which is essential to decouple Model, View and ViewModel in the MVVM architecture. We will also learn how to use [Himotoki](https://github.com/ikesyo/Himotoki) to define mappings from JSON data to Swift types.
@@ -13,7 +14,7 @@ In [the last blog post](/post/dependency-injection-in-mvvm-architecture-with-rea
 The source code used in the blog posts is available at:
 
 - [SwinjectMVVMExample](https://github.com/Swinject/SwinjectMVVMExample): Complete version of the project.
-- [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts.
+- [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts (except updates of Xcode and frameworks).
 
 ![SwinjectMVVMExample ScreenRecord](/images/post/2015-08/SwinjectMVVMExampleScreenRecord.gif)
 
@@ -34,9 +35,9 @@ Its usage is simple. Assume that you want to map JSON like `{ "some_name": "Himo
 
     extension SomeValue: Decodable {
         static func decode(e: Extractor) throws -> Group {
-            return try build(SomeValue.init)(
-                e <| "some_name",
-                e <| "some_value"
+            return try SomeValue(
+                name: e <| "some_name",
+                value: e <| "some_value"
             )
         }
     }
@@ -143,26 +144,26 @@ In this section, we are going to define the entities representing an image and r
                     }
             }
 
-            return try build(ImageEntity.init)(
-                e <| "id",
+            return try ImageEntity(
+                id: e <| "id",
 
-                e <| "pageURL",
-                e <| "imageWidth",
-                e <| "imageHeight",
+                pageURL: e <| "pageURL",
+                pageImageWidth: e <| "imageWidth",
+                pageImageHeight: e <| "imageHeight",
 
-                e <| "previewURL",
-                e <| "previewWidth",
-                e <| "previewHeight",
+                previewURL: e <| "previewURL",
+                previewWidth: e <| "previewWidth",
+                previewHeight: e <| "previewHeight",
 
-                e <| "webformatURL",
-                e <| "webformatWidth",
-                e <| "webformatHeight",
+                imageURL: e <| "webformatURL",
+                imageWidth: e <| "webformatWidth",
+                imageHeight: e <| "webformatHeight",
 
-                e <| "views",
-                e <| "downloads",
-                e <| "likes",
-                (try? e <| "tags").map(splitCSV) ?? [],
-                e <| "user"
+                viewCount: e <| "views",
+                downloadCount: e <| "downloads",
+                likeCount: e <| "likes",
+                tags: (try? e <| "tags").map(splitCSV) ?? [],
+                username: e <| "user"
             )
         }
     }
@@ -185,9 +186,9 @@ Add `ResponseEntity.swift` to `ExampleModel` target with the following text cont
     // MARK: Decodable
     extension ResponseEntity: Decodable {
         public static func decode(e: Extractor) throws -> ResponseEntity {
-            return try build(ResponseEntity.init)(
-                e <| "totalHits",
-                e <|| "hits"
+            return try ResponseEntity(
+                totalCount: e <| "totalHits",
+                images: e <|| "hits"
             )
         }
     }
@@ -340,13 +341,13 @@ As we did in [the simple weather app example](/post/dependency-injection-framewo
                 let serializer = Alamofire.Request.JSONResponseSerializer()
                 Alamofire.request(.GET, url, parameters: parameters)
                     .response(queue: self.queue, responseSerializer: serializer) {
-                        _, _, result in
-                        switch result {
+                        response in
+                        switch response.result {
                         case .Success(let value):
-                            sendNext(observer, value)
-                            sendCompleted(observer)
-                        case .Failure(_, let error):
-                            sendError(observer, NetworkError(error: error))
+                            observer.sendNext(value)
+                            observer.sendCompleted()
+                        case .Failure(let error):
+                            observer.sendFailed(NetworkError(error: error))
                         }
                     }
             }
@@ -384,10 +385,9 @@ A dispatch queue is passed to Alamofire to run the response in a background thre
         /// Incorrect data returned from the server.
         case IncorrectDataReturned
 
-        internal init(error: ErrorType) {
-            let nsError = error as NSError
-            if nsError.domain == NSURLErrorDomain {
-                switch nsError.code {
+        internal init(error: NSError) {
+            if error.domain == NSURLErrorDomain {
+                switch error.code {
                 case NSURLErrorUnknown:
                     self = .Unknown
                 case NSURLErrorCancelled:

@@ -6,6 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 5: As
 
 +++
 
+**Updated on Nov 20, 2015** to migrate ReactiveCocoa to v4.0.0 alpha 3 and Alamofire to v3.x.
 **Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
 
 By [the previous blog post](/post/dependency-injection-in-mvvm-architecture-with-reactivecocoa-part-4-implementing-the-view-and-viewmodel/), we developed an example app, in MVVM architecture, displaying meta data of images received from [Pixabay](https://pixabay.com/) server. In this blog post, we are going add a feature to asynchronously load the images. To handle the asynchronous events, [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) will be used as we did in the previous posts. Through the development, we will learn how to add a feature in MVVM architecture with unit tests and dependency injection are updated.
@@ -13,7 +14,7 @@ By [the previous blog post](/post/dependency-injection-in-mvvm-architecture-with
 The source code used in the blog posts is available at:
 
 - [SwinjectMVVMExample](https://github.com/Swinject/SwinjectMVVMExample): Complete version of the project.
-- [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts.
+- [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts (except updates of Xcode and frameworks).
 
 ## Notice
 
@@ -53,17 +54,17 @@ public final class Network: Networking {
             let serializer = Alamofire.Request.dataResponseSerializer()
             Alamofire.request(.GET, url)
                 .response(queue: self.queue, responseSerializer: serializer) {
-                    _, _, result in
-                    switch result {
+                    response in
+                    switch response.result {
                     case .Success(let data):
                         guard let image = UIImage(data: data) else {
                             sendError(observer, .IncorrectDataReturned)
                             return
                         }
-                        sendNext(observer, image)
-                        sendCompleted(observer)
-                    case .Failure(_, let error):
-                        sendError(observer, NetworkError(error: error))
+                        observer.sendNext(image)
+                        observer.sendCompleted()
+                    case .Failure(let error):
+                        observer.sendFailed(NetworkError(error: error))
                     }
             }
         }
@@ -289,9 +290,7 @@ At last, modify `AppDelegate` to add dependency injection of `Networking` to `Im
     @UIApplicationMain
     class AppDelegate: UIResponder, UIApplicationDelegate {
         var window: UIWindow?
-        var container: Container {
-            let container = Container()
-
+        let container = Container() { container in
             // Models
             container.register(Networking.self) { _ in Network() }
             container.register(ImageSearching.self) { r in
@@ -309,8 +308,6 @@ At last, modify `AppDelegate` to add dependency injection of `Networking` to `Im
             container.registerForStoryboard(ImageSearchTableViewController.self) { r, c in
                 c.viewModel = r.resolve(ImageSearchTableViewModeling.self)!
             }
-
-            return container
         }
 
         // Omitted
