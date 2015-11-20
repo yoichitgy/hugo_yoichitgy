@@ -7,17 +7,15 @@ title = "Dependency Injection Framework for Swift - Simple Weather App Example w
 
 +++
 
+- **Updated on Nov 20, 2015** to migrate to Alamofire v3.x and Swinject v0.5.
+
 In [the last blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), we developed the model part of the simple weather app, and learnt how to remove tightly coupled dependencies by using dependency injection and [Swinject](https://github.com/Swinject/Swinject). We found the decoupling made unit testing easier. In this blog post, we are going to develop the UI part of the app, and will learn how to wire up the decoupled components with Swinject.
 
 The source code used in this blog post is available at [a repository on GitHub](https://github.com/Swinject/SwinjectSimpleExample).
 
 ## Basic UI Structure
 
-First, we are going to make a basic UI structure to show the weather information in a table view. The UI components will be instantiated from a storyboard, but instantiation of the storyboard itself will be written by hand to use `SwinjectStoryboard` inheriting `UIStoryboard`.
-
-Open `Info.plist` and remove `"Main storyboard file base name"` key, which might be displayed as `"UIMainStoryboardFile"` if you are showing raw keys.
-
-Remove `ViewController.swift` and add `WeatherTableViewController.swift`, which has an empty definition of `WeatherTableViewController`. We will implement the class later with the dependency injection pattern.
+First, we are going to make a basic UI structure to show the weather information in a table view. Remove `ViewController.swift` and add `WeatherTableViewController.swift`, which has an empty definition of `WeatherTableViewController`. We will implement the class later with the dependency injection pattern.
 
 **WeatherTableViewController.swift**
 
@@ -34,37 +32,7 @@ Select the table view controller, which is the root view controller of the navig
 
 ![SwinjectSimpleExample Storyboard Screenshot](/images/post/2015-08/SwinjectSimpleExampleStoryboardScreenshot.png)
 
-Modify `AppDelegate.swift` to instantiate the initial view controller from the storyboard by hand. Here, we use `SwinjectStoryboard` instead of `UIStoryboard` to add dependency injection later. The instantiation of `SwinjectStoryboard` is not performed with an initializer but `create`  function[^1].
-
-**AppDelegate.swift**
-
-    import UIKit
-    import Swinject
-
-    @UIApplicationMain
-    class AppDelegate: UIResponder, UIApplicationDelegate {
-        var window: UIWindow?
-
-        func application(
-            application: UIApplication,
-            didFinishLaunchingWithOptions
-            launchOptions: [NSObject: AnyObject]?) -> Bool
-        {
-            let window = UIWindow(frame: UIScreen.mainScreen().bounds)
-            window.backgroundColor = UIColor.whiteColor()
-            window.makeKeyAndVisible()
-            self.window = window
-
-            let storyboard = SwinjectStoryboard.create(name: "Main", bundle: nil)
-            window.rootViewController = storyboard.instantiateInitialViewController()
-
-            return true
-        }
-
-        ...
-    }
-
-Now we are ready to run the app. Type `Command-R` to run. You will see an empty table view like the following image.
+Ok, we are ready to run the app. Type `Command-R` to run. You will see an empty table view like the following image.
 
 ![SwinjectSimpleExample Empty Screenshot](/images/post/2015-08/SwinjectSimpleExampleEmptyScreenshot.png)
 
@@ -80,54 +48,29 @@ Add `weatherFetcher` property to `WeatherTableViewController`.
         var weatherFetcher: WeatherFetcher?
     }
 
-Modify `AppDelegate` to instantiate `SwinjectStoryboard` with a configured `Container`.
+Add a file named `SwinjectStoryboard+Setup.swift` with the following implementation of an extension.
 
-**AppDelegate.swift**
+**SwinjectStoryboard+Setup.swift**
 
-    @UIApplicationMain
-    class AppDelegate: UIResponder, UIApplicationDelegate {
-        var window: UIWindow?
+    import Swinject
 
-        func application(
-            application: UIApplication,
-            didFinishLaunchingWithOptions
-            launchOptions: [NSObject: AnyObject]?) -> Bool
-        {
-            let window = UIWindow(frame: UIScreen.mainScreen().bounds)
-            window.backgroundColor = UIColor.whiteColor()
-            window.makeKeyAndVisible()
-            self.window = window
-
-            let container = createContainer()
-            let storyboard = SwinjectStoryboard.create(
-                name: "Main",
-                bundle: nil,
-                container: container)
-            window.rootViewController = storyboard.instantiateInitialViewController()
-
-            return true
-        }
-
-        private func createContainer() -> Container {
-            let container = Container()
-            container.registerForStoryboard(WeatherTableViewController.self) { r, c in
+    extension SwinjectStoryboard {
+        class func setup() {
+            defaultContainer.registerForStoryboard(WeatherTableViewController.self) { r, c in
                 c.weatherFetcher = r.resolve(WeatherFetcher.self)
             }
-            container.register(Networking.self) { _ in Network() }
-            container.register(WeatherFetcher.self) { r in
+            defaultContainer.register(Networking.self) { _ in Network() }
+            defaultContainer.register(WeatherFetcher.self) { r in
                 WeatherFetcher(networking: r.resolve(Networking.self)!)
             }
-            return container
         }
-
-        ...
     }
 
-In `createContainer` method, first, a `Container` instance is created, then configured. `registerForStoryboard` is used to configure dependencies of a view controller. Here `WeatherTableViewController` is configured to get `weatherFetcher` property set to a resolved instance of `WeatherFetcher`. This is called "property injection". `Networking` protocol, which was defined in [the last blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), is configured to be `Network` encapsulating Alamofire. `WeatherFetcher` is configured to be initialized with a resolved `Networking` instance. This is called "initializer injection". At the end, the method returns the configured `container`.
+The `setup` method in the extension is called only once before the first instance of `SwinjectStoryboard` is instantiated. The method is used to setup `defaultContainer` static property, which is used by an instance of `SwinjectStoryboard` if no container is passed to the initializer of `SwinjectStoryboard` or the instance is created by the runtime. We define the dependencies in the extension because we want to instantiate `SwinjectStoryboard` from `Main.storyboard` by the runtime when our app is launched. `SwinjectStoryboard` is automatically instantiated when the runtime tries to instantiate `UIStoryboard`.
 
-In `application:didFinishLaunchingWithOptions:` method, the configured `container` is passed to `SwinjectStoryboard`. That's all. Simple, isn't it? Just configured and passed it.
+In the `setup` method, first, `registerForStoryboard` is used to configure dependency injection to `WeatherTableViewController`. Here `weatherFetcher` property is configured to be set to an instance of `WeatherFetcher` when the view controller is instantiated. This style of dependency injection to a property is called "property injection". Second, `Networking` protocol, which was defined in [the last blog post](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), is configured to be `Network` encapsulating Alamofire. Third, `WeatherFetcher` is configured to be initialized with a resolved `Networking` instance. This style of dependency injection to an initializer argument is called "initializer injection".
 
-Let's move on to the implementation of `WeatherTableViewController`.
+Ok, we finished configuring the dependency injection. Let's move on to the implementation of `WeatherTableViewController`.
 
 **WeatherTableViewController.swift**
 

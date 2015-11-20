@@ -6,7 +6,8 @@ title = "Dependency Injection Framework for Swift - Simple Weather App Example w
 
 +++
 
-**Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
+- **Updated on Nov 20, 2015** to migrate to Alamofire v3.x and Swinject v0.5.
+- **Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
 
 In [the last blog post](/post/dependency-injection-framework-for-swift-introduction-to-swinject/), we walked through the concept of dependency injection and basic usage of [Swinject](https://github.com/Swinject/Swinject), the dependency injection framework for Swift. In this blog post, we are going to develop the simple weather app that you saw its screenshot in the last blog post. During the simple but essential steps of the development, you will see how to get rid of tightly coupled dependencies by using the dependency injection pattern and Swinject.
 
@@ -34,13 +35,13 @@ Then, we are going to install [Alamofire](https://github.com/Alamofire/Alamofire
     platform :ios, '8.0'
     use_frameworks!
 
-    pod 'Alamofire', '~> 2.0.2'
+    pod 'Alamofire', '~> 3.1.0'
     pod 'SwiftyJSON', '~> 2.3.0'
-    pod 'Swinject', '~> 0.2.2'
+    pod 'Swinject', '0.5'
 
     target 'SwinjectSimpleExampleTests' do
-        pod 'Quick', '0.6.0'
-        pod 'Nimble', '2.0.0-rc.2'
+        pod 'Quick', '0.8.0'
+        pod 'Nimble', '3.0.0'
     end
 
 Alamofire is a networking library to write request and asynchronous response simply. SwiftyJSON is a library to access JSON elements simply. Quick is a [behavior-driven development](https://en.wikipedia.org/wiki/Behavior-driven_development) framework to write tests as specs in simple structures. Nimble is a matcher framework that is expressive and supports asynchronous tests. For details, please visit their project pages.
