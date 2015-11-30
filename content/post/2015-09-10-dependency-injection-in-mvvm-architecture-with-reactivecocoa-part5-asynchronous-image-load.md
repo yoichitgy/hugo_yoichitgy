@@ -34,7 +34,7 @@ First, we are going to add the feature to request an image to our Model. Add `re
         func requestImage(url: String) -> SignalProducer<UIImage, NetworkError>
     }
 
-Modify `Network` class to implement `requestImage` method. In the method, the initializer of `SignalProducer` with a trailing closure is used to convert an asynchronous response of Alamofire to a `Signal` of ReactiveCocoa. If the response is successful and its data are valid, `.Next` and `.Completed` events are sent to `observer`. Otherwise an `.Error` event is sent. Because the response of Alamofire runs in the main thread by default, a serial queue is passed to Alamofire.
+Modify `Network` class to implement `requestImage` method. In the method, the initializer of `SignalProducer` with a trailing closure is used to convert an asynchronous response of Alamofire to a `Signal` of ReactiveCocoa. If the response is successful and its data are valid, `.Next` and `.Completed` events are sent to `observer`. Otherwise an `.Failed` event is sent. Because the response of Alamofire runs in the main thread by default, a serial queue is passed to Alamofire.
 
 **Network.swift**
 
@@ -58,7 +58,7 @@ public final class Network: Networking {
                     switch response.result {
                     case .Success(let data):
                         guard let image = UIImage(data: data) else {
-                            sendError(observer, .IncorrectDataReturned)
+                            observer.sendFailed(.IncorrectDataReturned)
                             return
                         }
                         observer.sendNext(image)
@@ -139,7 +139,7 @@ Add unit tests to `NetworkSpec` to check the new `requestImage` method. As a sta
                 it("eventually gets an error if incorrect data for an image is returned.") {
                     var error: NetworkError?
                     network.requestImage("https://httpbin.org/get")
-                        .on(error: { error = $0 })
+                        .on(failed: { error = $0 })
                         .start()
 
                     expect(error).toEventually(
@@ -148,7 +148,7 @@ Add unit tests to `NetworkSpec` to check the new `requestImage` method. As a sta
                 it("eventually gets an error if the network has a problem.") {
                     var error: NetworkError? = nil
                     network.requestImage("https://not.existing.server.comm/image/jpeg")
-                        .on(error: { error = $0 })
+                        .on(failed: { error = $0 })
                         .start()
 
                     expect(error).toEventually(
@@ -254,8 +254,8 @@ import ReactiveCocoa
 import ExampleModel
 
 public final class ImageSearchTableViewModel: ImageSearchTableViewModeling {
-    public var cellModels: PropertyOf<[ImageSearchTableViewCellModeling]> {
-        return PropertyOf(_cellModels)
+    public var cellModels: AnyProperty<[ImageSearchTableViewCellModeling]> {
+        return AnyProperty(_cellModels)
     }
     private let _cellModels = MutableProperty<[ImageSearchTableViewCellModeling]>([])
     private let imageSearch: ImageSearching
@@ -322,8 +322,8 @@ Let's modify and add unit tests for the updated ViewModel. First, modify `ImageS
         class StubImageSearch: ImageSearching {
             func searchImages() -> SignalProducer<ResponseEntity, NetworkError> {
                 return SignalProducer { observer, disposable in
-                    sendNext(observer, dummyResponse)
-                    sendCompleted(observer)
+                    observer.sendNext(dummyResponse)
+                    observer.sendCompleted()
                 }
                 .observeOn(QueueScheduler())
             }
@@ -559,7 +559,7 @@ At last, add `ImageSearchTableViewCellSpec.swift` with the following content to 
             func getPreviewImage() -> SignalProducer<UIImage?, NoError> {
                 return SignalProducer<UIImage?, NoError> { observer, _ in
                     self.getPreviewImageStarted = true
-                    sendCompleted(observer)
+                    observer.sendCompleted()
                 }
             }
         }

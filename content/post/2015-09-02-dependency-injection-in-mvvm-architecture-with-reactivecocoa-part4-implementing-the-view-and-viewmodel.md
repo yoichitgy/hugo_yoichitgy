@@ -400,8 +400,8 @@ Let's add unit tests to check our ViewModel implementation. First, delete `Examp
         class StubImageSearch: ImageSearching {
             func searchImages() -> SignalProducer<ResponseEntity, NetworkError> {
                 return SignalProducer { observer, disposable in
-                    sendNext(observer, dummyResponse)
-                    sendCompleted(observer)
+                    observer.sendNext(dummyResponse)
+                    observer.sendCompleted()
                 }
                 .observeOn(QueueScheduler())
             }

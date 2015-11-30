@@ -356,11 +356,11 @@ As we did in [the simple weather app example](/post/dependency-injection-framewo
 
 In [the previous example](/post/dependency-injection-framework-for-swift-simple-weather-app-example-with-swinject-part-1/), the network service took a callback to pass a response. This time, `requestJSON` method returns `SignalProducer<AnyObject, NetworkError>` to deliver network events to its observer. The `SignalProducer` takes a generic argument as `AnyObject` because Alamofire (or NSJSONSerialization) returns JSON data as `AnyObject` that is actually an array or dictionary.
 
-The `requestJSON` method creates `SignalProducer` instance with its trailing closure, and returns the instance. Within the closure, a response event of Alamofire is converted to a ReactiveCocoa event by calling `sendNext`, `sendCompleted` and `sendError`. Notice that the closure passed to `SignalProducer` is not actually invoked until `start` method is called on the `SignalProducer` instance.
+The `requestJSON` method creates `SignalProducer` instance with its trailing closure, and returns the instance. Within the closure, a response event of Alamofire is converted to a ReactiveCocoa event by calling `sendNext`, `sendCompleted` and `sendFailed`. Notice that the closure passed to `SignalProducer` is not actually invoked until `start` method is called on the `SignalProducer` instance.
 
 A dispatch queue is passed to Alamofire to run the response in a background thread because Alamofire by default runs the response in the main thread (main queue).
 
-`sendError` function takes an instance of `NetworkError` type. Add `NetworkError.swift` with the following content to `ExampleModel` target. It converts an `NSError` passed from Alamofire to our own error type[^4].
+`sendFailed` method takes an instance of `NetworkError` type. Add `NetworkError.swift` with the following content to `ExampleModel` target. It converts an `NSError` passed from Alamofire to our own error type[^4].
 
 **NetworkError.swift**
 
@@ -488,7 +488,7 @@ Let's add unit tests for the `Network` type. Add `NetworkSpec.swift` with the fo
                     var error: NetworkError? = nil
                     let url = "https://not.existing.server.comm/get"
                     network.requestJSON(url, parameters: ["a": "b", "x": "y"])
-                        .on(error: { error = $0 })
+                        .on(failed: { error = $0 })
                         .start()
 
                     expect(error)
@@ -606,8 +606,8 @@ Let's write unit tests. Add `ImageSearchSpec.swift` with the following content t
                 ]
 
                 return SignalProducer { observer, disposable in
-                    sendNext(observer, json)
-                    sendCompleted(observer)
+                    observer.sendNext(json)
+                    observer.sendCompleted()
                 }.observeOn(QueueScheduler())
             }
         }
@@ -619,8 +619,8 @@ Let's write unit tests. Add `ImageSearchSpec.swift` with the following content t
                 let json = [String: AnyObject]()
 
                 return SignalProducer { observer, disposable in
-                    sendNext(observer, json)
-                    sendCompleted(observer)
+                    observer.sendNext(json)
+                    observer.sendCompleted()
                 }.observeOn(QueueScheduler())
             }
         }
@@ -630,7 +630,7 @@ Let's write unit tests. Add `ImageSearchSpec.swift` with the following content t
                 -> SignalProducer<AnyObject, NetworkError>
             {
                 return SignalProducer { observer, disposable in
-                    sendError(observer, .NotConnectedToInternet)
+                    observer.sendFailed(.NotConnectedToInternet)
                 }.observeOn(QueueScheduler())
             }
         }
@@ -654,7 +654,7 @@ Let's write unit tests. Add `ImageSearchSpec.swift` with the following content t
                 var error: NetworkError? = nil
                 let search = ImageSearch(network: BadStubNetwork())
                 search.searchImages()
-                    .on(error: { error = $0 })
+                    .on(failed: { error = $0 })
                     .start()
 
                 expect(error).toEventually(equal(NetworkError.IncorrectDataReturned))
@@ -663,7 +663,7 @@ Let's write unit tests. Add `ImageSearchSpec.swift` with the following content t
                 var error: NetworkError? = nil
                 let search = ImageSearch(network: ErrorStubNetwork())
                 search.searchImages()
-                    .on(error: { error = $0 })
+                    .on(failed: { error = $0 })
                     .start()
 
                 expect(error).toEventually(equal(NetworkError.NotConnectedToInternet))
