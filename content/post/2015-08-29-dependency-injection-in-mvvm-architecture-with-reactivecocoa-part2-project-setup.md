@@ -6,6 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 2: Pr
 
 +++
 
+- **Updated on Dec 2, 2015** for the update of ReactiveCocoa to v4.0.0 alpha 4 in Cartfile.
 - **Updated on Nov 20, 2015** to migrate to ReactiveCocoa v4.0.0 alpha 3, Alamofire v3.x and Himotoki v1.3.
 - **Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
 
@@ -99,7 +100,7 @@ To install them with [Carthage](https://github.com/Carthage/Carthage), add a tex
 
 **Cartfile**
 
-    github "ReactiveCocoa/ReactiveCocoa" "v4.0.0-alpha.3"
+    github "ReactiveCocoa/ReactiveCocoa" "v4.0.0-alpha.4"
     github "ikesyo/Himotoki" ~> 1.3.0
     github "Alamofire/Alamofire" ~> 3.1.2
     github "Swinject/Swinject" == 0.5.0
