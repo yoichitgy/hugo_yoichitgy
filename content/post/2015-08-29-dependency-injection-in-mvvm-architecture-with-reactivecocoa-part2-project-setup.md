@@ -6,6 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 2: Pr
 
 +++
 
+- **Updated on Dec 23, 2015** for the update of Pixabay API dropping `username` field.
 - **Updated on Dec 2, 2015** for the update of ReactiveCocoa to v4.0.0 alpha 4 in Cartfile.
 - **Updated on Nov 20, 2015** to migrate to ReactiveCocoa v4.0.0 alpha 3, Alamofire v3.x and Himotoki v1.3.
 - **Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
@@ -24,13 +25,13 @@ The example app asynchronously searches, downloads and displays images obtained 
 - Swift 2.1
 - Xcode 7.1
 - [Carthage](https://github.com/Carthage/Carthage) 0.10.0 or later
-- [Pixabay](https://pixabay.com/api/docs/) API username and key
+- [Pixabay](https://pixabay.com/api/docs/) API key
 
 To use with Swift 2.1 and Xcode 7.1, ReactiveCocoa [version 4.0](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) is used though it is still in an alpha version at the moment. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but version 4 APIs are in protocol oriented and fluent style like `.map()` or `.flatMap()`.
 
 Carthage can be installed by [its installer (Carthage.pkg)](https://github.com/Carthage/Carthage/releases). If you are new to Carthage, check [this tutorial page](http://www.raywenderlich.com/109330/carthage-tutorial-getting-started).
 
-You can get a free API username and key at [Pixabay](https://pixabay.com/). First, sign up and log in there. Then, access its [API documentation page](https://pixabay.com/api/docs/). Your API username and key will be displayed in "Request parameters" section.
+You can get a free API key at [Pixabay](https://pixabay.com/). First, sign up and log in there. Then, access its [API documentation page](https://pixabay.com/api/docs/). Your API key will be displayed in "Request parameters" section.
 
 ## Project Setup Overview
 
