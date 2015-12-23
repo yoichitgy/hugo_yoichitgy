@@ -6,6 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 3: De
 
 +++
 
+- **Updated on Dec 23, 2015** for the update of Pixabay API dropping `username` field.
 - **Updated on Nov 20, 2015** to migrate to ReactiveCocoa v4.0.0 alpha 3, Alamofire v3.x and Himotoki v1.3.
 - **Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
 
@@ -510,7 +511,7 @@ Run the unit tests, and let's move on to the next section.
 
 In this section, we are going to define the service to search images through Pixabay API. This is the main part of `ExampleModel`.
 
-First, add `Pixabay.swift` with the following content to `ExampleModel` target. It defines the URL and parameters for the API. Please fill `apiUsername` and `apiKey` with [your own username and API key obtained from Pixabay](https://pixabay.com/api/docs/).
+First, add `Pixabay.swift` with the following content to `ExampleModel` target. It defines the URL and parameters for the API. Please fill `apiKey` with [your own API key obtained from Pixabay](https://pixabay.com/api/docs/).
 
 **Pixabay.swift**
 
@@ -519,7 +520,6 @@ First, add `Pixabay.swift` with the following content to `ExampleModel` target. 
 
         internal static var requestParameters: [String: AnyObject] {
             return [
-                "username": Config.apiUsername,
                 "key": Config.apiKey,
                 "image_type": "photo",
                 "safesearch": true,
@@ -530,7 +530,6 @@ First, add `Pixabay.swift` with the following content to `ExampleModel` target. 
 
     extension Pixabay {
         private struct Config {
-            private static let apiUsername = "" // Fill with your own username.
             private static let apiKey = "" // Fill with your own API key.
         }
     }
