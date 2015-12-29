@@ -6,6 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 2: Pr
 
 +++
 
+- **Updated on Dec 29, 2015** to install ReactiveCocoa v4.0.0-RC.1 and Swinject v1.0.0.
 - **Updated on Dec 23, 2015** for the update of Pixabay API dropping `username` field.
 - **Updated on Dec 2, 2015** for the update of ReactiveCocoa to v4.0.0 alpha 4 in Cartfile.
 - **Updated on Nov 20, 2015** to migrate to ReactiveCocoa v4.0.0 alpha 3, Alamofire v3.x and Himotoki v1.3.
@@ -101,10 +102,10 @@ To install them with [Carthage](https://github.com/Carthage/Carthage), add a tex
 
 **Cartfile**
 
-    github "ReactiveCocoa/ReactiveCocoa" "v4.0.0-alpha.4"
+    github "ReactiveCocoa/ReactiveCocoa" "v4.0.0-RC.1"
     github "ikesyo/Himotoki" ~> 1.3.0
     github "Alamofire/Alamofire" ~> 3.1.2
-    github "Swinject/Swinject" == 0.5.0
+    github "Swinject/Swinject" ~> 1.0.0
 
     github "Quick/Quick" == 0.8.0
     github "Quick/Nimble" == 3.0.0
