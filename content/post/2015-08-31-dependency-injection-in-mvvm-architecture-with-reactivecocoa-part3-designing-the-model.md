@@ -100,7 +100,7 @@ According to [the API documentation of Pixabay](https://pixabay.com/api/docs/), 
 
 We are going to design our Model to be composed of entities and services. In short, an entity is a concept or object that exists in a model[^2]. A service is a stateless operation that does not fit in an entity.
 
-To decouple ViewModel and Model, and Model and external system, the interfaces are defined by protocols. In the diagram below, `ImageSearching` and `Networking` are protocols. `ImageSearch` and `Network` are their implementations conforming the protocols. `ViewModel` accesses `Model` through `ImageSearching` protocol, and its implementation `ImageSearch` accesses the external system through `Networking` protocol. The external system raises events with JSON data. The data are converted to `ResponseEntity` and `ImageEntity` by `ImageSearch` when the events are propagated to `ViewModel`.
+To decouple ViewModel and Model, and Model and external system, the interfaces are defined by protocols. In the diagram below, `ImageSearching` and `Networking` are protocols. `ImageSearch` and `Network` are implementations conforming the protocols. ViewModel accesses Model through `ImageSearching` protocol, and its implementation `ImageSearch` accesses the external system through `Networking` protocol. The external system raises events with JSON data. The data are converted to `ResponseEntity` and `ImageEntity` by `ImageSearch` when the events are propagated to ViewModel.
 
 ![Model Design](/images/post/2015-08/SwinjectMVVMExampleModelDesign.png)
 
