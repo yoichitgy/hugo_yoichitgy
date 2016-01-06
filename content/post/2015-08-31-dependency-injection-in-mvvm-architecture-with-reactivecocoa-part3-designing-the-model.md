@@ -6,6 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 3: De
 
 +++
 
+- **Updated on Jan 7, 2016** to remove notice about pre-release version of ReactiveCocoa v4.0.0.
 - **Updated on Jan 7, 2015** for Himotoki v1.3 usage without `build` function.
 - **Updated on Dec 23, 2015** for the update of Pixabay API dropping `username` field.
 - **Updated on Nov 20, 2015** to migrate to ReactiveCocoa v4.0.0 alpha 3, Alamofire v3.x and Himotoki v1.3.
@@ -19,10 +20,6 @@ The source code used in the blog posts is available at:
 - [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts (except updates of Xcode and frameworks).
 
 ![SwinjectMVVMExample ScreenRecord](/images/post/2015-08/SwinjectMVVMExampleScreenRecord.gif)
-
-## Notice
-
-To use with Swift 2 and Xcode 7, ReactiveCocoa [version 4.0](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) is used though it is still in an alpha version at the moment. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but version 4 APIs are in protocol oriented and fluent style like `.map()` or `.flatMap()`.
 
 ## Himotoki
 

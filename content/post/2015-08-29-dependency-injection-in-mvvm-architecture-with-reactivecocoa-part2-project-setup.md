@@ -6,6 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 2: Pr
 
 +++
 
+- **Updated on Jan 7, 2016** to remove notice about pre-release version of ReactiveCocoa v4.0.0.
 - **Updated on Dec 29, 2015** to install ReactiveCocoa v4.0.0-RC.1 and Swinject v1.0.0.
 - **Updated on Dec 23, 2015** for the update of Pixabay API dropping `username` field.
 - **Updated on Dec 2, 2015** for the update of ReactiveCocoa to v4.0.0 alpha 4 in Cartfile.
@@ -24,11 +25,9 @@ The example app asynchronously searches, downloads and displays images obtained 
 ## Requirements
 
 - Swift 2.1
-- Xcode 7.1
+- Xcode 7.2
 - [Carthage](https://github.com/Carthage/Carthage) 0.10.0 or later
 - [Pixabay](https://pixabay.com/api/docs/) API key
-
-To use with Swift 2.1 and Xcode 7.1, ReactiveCocoa [version 4.0](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) is used though it is still in an alpha version at the moment. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but version 4 APIs are in protocol oriented and fluent style like `.map()` or `.flatMap()`.
 
 Carthage can be installed by [its installer (Carthage.pkg)](https://github.com/Carthage/Carthage/releases). If you are new to Carthage, check [this tutorial page](http://www.raywenderlich.com/109330/carthage-tutorial-getting-started).
 

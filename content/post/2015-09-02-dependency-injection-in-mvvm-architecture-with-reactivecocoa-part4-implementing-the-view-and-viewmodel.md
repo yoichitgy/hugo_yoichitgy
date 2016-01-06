@@ -6,6 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 4: Im
 
 +++
 
+- **Updated on Jan 7, 2016** to remove notice about pre-release version of ReactiveCocoa v4.0.0.
 - **Updated on Nov 20, 2015** to migrate to ReactiveCocoa v4.0.0 alpha 3 and Alamofire v3.x.
 - **Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
 
@@ -15,10 +16,6 @@ The source code used in the blog posts is available at:
 
 - [SwinjectMVVMExample](https://github.com/Swinject/SwinjectMVVMExample): Complete version of the project.
 - [SwinjectMVVMExample_ForBlog](https://github.com/yoichitgy/SwinjectMVVMExample_ForBlog): Simplified version of the project to follow the blog posts (except updates of Xcode and frameworks).
-
-## Notice
-
-To use with Swift 2 and Xcode 7, ReactiveCocoa [version 4.0](https://github.com/ReactiveCocoa/ReactiveCocoa/releases) is used though it is still in an alpha version at the moment. Notice that ReactiveCocoa 3.0 has functional style APIs like `|> map` or `|> flatMap`, but version 4 APIs are in protocol oriented and fluent style like `.map()` or `.flatMap()`.
 
 ## View and ViewModel Design Overview
 
