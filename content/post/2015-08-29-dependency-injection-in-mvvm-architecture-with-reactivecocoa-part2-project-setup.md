@@ -25,7 +25,7 @@ The example app asynchronously searches, downloads and displays images obtained 
 ## Requirements
 
 - Swift 2.1
-- Xcode 7.1
+- Xcode 7.2
 - [Carthage](https://github.com/Carthage/Carthage) 0.10.0 or later
 - [Pixabay](https://pixabay.com/api/docs/) API key
 
