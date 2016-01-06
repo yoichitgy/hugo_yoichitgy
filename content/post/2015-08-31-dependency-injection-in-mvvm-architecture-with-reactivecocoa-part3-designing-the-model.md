@@ -6,6 +6,7 @@ title = "Dependency Injection in MVVM Architecture with ReactiveCocoa Part 3: De
 
 +++
 
+- **Updated on Jan 7, 2015** for Himotoki v1.3 usage without `build` function.
 - **Updated on Dec 23, 2015** for the update of Pixabay API dropping `username` field.
 - **Updated on Nov 20, 2015** to migrate to ReactiveCocoa v4.0.0 alpha 3, Alamofire v3.x and Himotoki v1.3.
 - **Updated on Oct 1, 2015** for the release versions of Swift 2 and Xcode 7.
@@ -43,7 +44,7 @@ Its usage is simple. Assume that you want to map JSON like `{ "some_name": "Himo
         }
     }
 
-In `decode` function, the mappings are defined as the parameters to `build` function. Here `some_name` is mapped to `name` property of `SomeValue`, and `some_value` to `value` property. The mappings are defined in the order as the properties of `SomeValue` type are defined.
+In `decode` function, the mappings are defined as the parameters passed to the initializer of `SomveValue`. Here `some_name` is mapped to `name` property of `SomeValue`, and `some_value` to `value` property.
 
 To get an instance mapped from JSON data, call `decode` function with JSON data as `[String: AnyObject]` returned from Alamofire or NSJSONSerialization.
 
@@ -99,7 +100,7 @@ According to [the API documentation of Pixabay](https://pixabay.com/api/docs/), 
 
 We are going to design our Model to be composed of entities and services. In short, an entity is a concept or object that exists in a model[^2]. A service is a stateless operation that does not fit in an entity.
 
-To decouple ViewModel and Model, and Model and external system, the interfaces are defined by protocols. In the diagram below, `ImageSearching` and `Networking` are protocols. `ImageSearch` and `Network` are their implementations conforming the protocols. `ViewModel` accesses `Model` through `ImageSearching` protocol, and its implementation `ImageSearch` accesses the external system through `Networking` protocol. The external system raises events with JSON data. The data are converted to `ResponseEntity` and `ImageEntity` by `ImageSearch` when the events are propagated to `ViewModel`.
+To decouple ViewModel and Model, and Model and external system, the interfaces are defined by protocols. In the diagram below, `ImageSearching` and `Networking` are protocols. `ImageSearch` and `Network` are implementations conforming the protocols. ViewModel accesses Model through `ImageSearching` protocol, and its implementation `ImageSearch` accesses the external system through `Networking` protocol. The external system raises events with JSON data. The data are converted to `ResponseEntity` and `ImageEntity` by `ImageSearch` when the events are propagated to ViewModel.
 
 ![Model Design](/images/post/2015-08/SwinjectMVVMExampleModelDesign.png)
 
