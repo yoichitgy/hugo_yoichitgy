@@ -109,7 +109,7 @@ To install them with [Carthage](https://github.com/Carthage/Carthage), add a tex
     github "Quick/Quick" == 0.8.0
     github "Quick/Nimble" == 3.0.0
 
-Run `carthage update --no-use-binaries` in Terminal[^2]. Wait for a couple of minutes (or more) until Carthage finishes building the frameworks[^3]. If you use [Git](https://git-scm.com), [here is a `.gitignore` for Swift](https://github.com/github/gitignore/blob/master/Swift.gitignore) excluding frameworks built by Carthage.
+Run `carthage update --no-use-binaries --platform iOS` in Terminal[^2]. Wait for a couple of minutes (or more) until Carthage finishes building the frameworks[^3]. If you use [Git](https://git-scm.com), [here is a `.gitignore` for Swift](https://github.com/github/gitignore/blob/master/Swift.gitignore) excluding frameworks built by Carthage.
 
 After the build completes, right click on `SwinjectMVVMExample` in Project Navigator, and select `New Group`. Name the group `Frameworks`. Drag and drop the frameworks built in `Carthage/Build/iOS` directory in Finder to the group in Xcode. When you drop them, an action sheet asks you wether they should be added to targets. Uncheck all targets and click `Finish` button.
 
